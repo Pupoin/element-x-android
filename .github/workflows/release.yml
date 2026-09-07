@@ -4,8 +4,11 @@ on:
   workflow_dispatch:
   push:
     branches: [ main ]
+    tags:
+      - 'v*'
 
-permissions: {}
+permissions:
+  contents: write
 
 # Enrich gradle.properties for CI/CD
 env:
@@ -106,3 +109,10 @@ jobs:
           name: elementx-app-fdroid-apks-unsigned
           path: |
             app/build/outputs/apk/fdroid/release/*.apk
+      - name: Publish to GitHub Release
+        uses: softprops/action-gh-release@c062e08bd532815e2082a85e87e3ef29c3e6d190 # v2.0.8
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: app/build/outputs/apk/fdroid/release/*.apk
+          generate_release_notes: true
+
