@@ -77,3 +77,9 @@
 
 # Rustls Platform Verifier
 -keep, includedescriptorclasses class org.rustls.platformverifier.** { *; }
+
+# JLatexMath
+-keep class org.scilab.forge.jlatexmath.** { *; }
+-dontwarn org.scilab.forge.jlatexmath.**
+-keep class ru.noties.jlatexmath.** { *; }
+-dontwarn ru.noties.jlatexmath.**

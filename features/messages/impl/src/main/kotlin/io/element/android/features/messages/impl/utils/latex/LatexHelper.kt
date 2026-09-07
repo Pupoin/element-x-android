@@ -34,18 +34,14 @@ object LatexHelper {
      */
     fun cleanFormula(raw: String): String {
         var clean = raw.trim()
-        if (clean.contains("""\begin{align""") || clean.contains("""\begin{gather""")) {
-            clean = clean
-                .replace("""\begin{align*}""", """\begin{aligned}""")
-                .replace("""\end{align*}""", """\end{aligned}""")
-                .replace("""\begin{align}""", """\begin{aligned}""")
-                .replace("""\end{align}""", """\end{aligned}""")
-                .replace("""\begin{gather*}""", """\begin{gathered}""")
-                .replace("""\end{gather*}""", """\end{gathered}""")
-                .replace("""\begin{gather}""", """\begin{gathered}""")
-                .replace("""\end{gather}""", """\end{gathered}""")
-        }
-        return clean
+        clean = clean
+            .replace(Regex("""\\begin\{\s*align\*?\s*\}"""), """\\begin{aligned}""")
+            .replace(Regex("""\\end\{\s*align\*?\s*\}"""), """\\end{aligned}""")
+            .replace(Regex("""\\begin\{\s*gather\*?\s*\}"""), """\\begin{gathered}""")
+            .replace(Regex("""\\end\{\s*gather\*?\s*\}"""), """\\end{gathered}""")
+            .replace(Regex("""\\begin\{\s*equation\*?\s*\}"""), "")
+            .replace(Regex("""\\end\{\s*equation\*?\s*\}"""), "")
+        return clean.trim()
     }
 
     /**

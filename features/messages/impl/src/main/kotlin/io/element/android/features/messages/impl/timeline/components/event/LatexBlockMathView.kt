@@ -39,6 +39,7 @@ import io.element.android.compound.theme.ElementTheme
 import io.element.android.features.messages.impl.utils.latex.LatexHelper
 import ru.noties.jlatexmath.JLatexMathAndroid
 import ru.noties.jlatexmath.JLatexMathDrawable
+import timber.log.Timber
 
 /**
  * A horizontally-scrollable Compose card that renders large block LaTeX math formulas
@@ -67,7 +68,8 @@ fun LatexBlockMathView(
                 .color(textColor.toArgb())
                 .align(JLatexMathDrawable.ALIGN_LEFT)
                 .build()
-        } catch (_: Throwable) {
+        } catch (t: Throwable) {
+            Timber.e(t, "LatexBlockMathView failed to render formula: %s", clean)
             null
         }
     }
