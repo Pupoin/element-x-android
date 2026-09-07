@@ -1,8 +1,44 @@
+# 🚀 Element X+ (LaTeX Formula Rendering Edition)
 # 🚀 Element X+ (LaTeX 数学公式增强版)
 
-Element X+ 是基于 Element X Android 开发的增强版本，内置专业的 LaTeX 数学公式渲染引擎，专为学术交流、技术探讨和数学公式展示优化。
+---
+
+## 🇬🇧 English
+
+Element X+ is an enhanced version of Element X Android featuring a native, high-performance LaTeX math rendering engine, tailored for academic communication, technical discussions, and scientific collaboration.
+
+### ✨ Key Features
+
+1. **📐 Native LaTeX Math Rendering**
+   - **Inline Math**: Seamlessly renders `$E=mc^2$`, `$\nabla \cdot \mathbf{B} = 0$` within message bubbles while maintaining natural typographic baseline alignment.
+   - **Block Math**: Displays `$$ ... $$` formulas in standalone, horizontally-scrollable cards. Complex equations, fractions, and large matrices remain crisp without down-scaling, line wrapping, or clipping.
+   - **Matrix MSC2191 Compliant**: Fully compatible with the Matrix MSC2191 math standard used by Element Web and Element Desktop.
+
+2. **🧠 Broad Environment Compatibility**
+   - Built-in automatic normalization for popular LaTeX environments including `align*` / `align`, `gather*` / `gather`, `equation*` / `equation`, `matrix` / `pmatrix`, and `aligned`.
+   - Tolerates extra whitespace and formatting variations gracefully.
+
+3. **📋 Smooth Interaction & Fast Copy**
+   - **Single-tap formula card**: Copies the raw LaTeX code directly to the clipboard with an instant toast notification.
+   - **Long-press message**: Opens the standard context menu with a "Select text" sheet for precise text selection and copying.
+
+4. **⚙️ Toggle in Advanced Settings**
+   - Easily enable or disable formula rendering anytime under **Settings → Advanced Settings → Render mathematical formulas**.
+   - When disabled, messages fallback to raw LaTeX source text without custom rendering.
+
+5. **📱 Side-by-Side Coexistence**
+   - Packaged as `io.element.android.x.custom` and labeled as **Element X+**.
+   - Can be installed and run alongside the official Element X release without signature conflicts or overwrites.
+
+### 📦 Installation Guide
+- Most users (64-bit ARM devices): Download `app-fdroid-arm64-v8a-release.apk`.
+- Older 32-bit devices: Download `app-fdroid-armeabi-v7a-release.apk`.
 
 ---
+
+## 🇨🇳 中文说明
+
+Element X+ 是基于 Element X Android 开发的增强版本，内置专业的 LaTeX 数学公式渲染引擎，专为学术交流、技术探讨和数学公式展示优化。
 
 ### ✨ 核心特性
 
