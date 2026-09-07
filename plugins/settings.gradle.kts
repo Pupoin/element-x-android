@@ -10,6 +10,9 @@ rootProject.name = "ElementX_plugins"
 
 dependencyResolutionManagement {
     repositories {
+        maven { url = uri("https://maven.aliyun.com/repository/public") }
+        maven { url = uri("https://maven.aliyun.com/repository/google") }
+        maven { url = uri("https://maven.aliyun.com/repository/gradle-plugin") }
         mavenCentral()
     }
     versionCatalogs {

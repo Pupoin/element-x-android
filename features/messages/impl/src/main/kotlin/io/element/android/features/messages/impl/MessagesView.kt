@@ -89,10 +89,14 @@ import io.element.android.features.messages.impl.timeline.components.reactionsum
 import io.element.android.features.messages.impl.timeline.components.reactionsummary.ReactionSummaryView
 import io.element.android.features.messages.impl.timeline.components.receipt.bottomsheet.ReadReceiptBottomSheet
 import io.element.android.features.messages.impl.timeline.components.receipt.bottomsheet.ReadReceiptBottomSheetEvent
+import io.element.android.features.messages.impl.timeline.components.selection.SelectTextBottomSheet
 import io.element.android.features.messages.impl.timeline.model.TimelineItem
 import io.element.android.features.messages.impl.timeline.model.TimelineItemGroupPosition
+import io.element.android.features.messages.impl.timeline.model.event.TimelineItemStateContent
+import io.element.android.features.messages.impl.timeline.model.event.TimelineItemTextBasedContent
 import io.element.android.features.messages.impl.timeline.model.event.aTimelineItemStateEventContent
 import io.element.android.features.messages.impl.timeline.model.event.aTimelineItemTextContent
+import io.element.android.features.messages.impl.timeline.model.event.captionOrNull
 import io.element.android.features.messages.impl.timeline.sendfailure.SendFailureDialogView
 import io.element.android.features.messages.impl.topbars.MessagesViewTopBar
 import io.element.android.features.messages.impl.topbars.ThreadTopBar
@@ -384,6 +388,7 @@ fun MessagesView(
     )
 
     var endPollConfirmingEvent: TimelineItem.Event? by remember { mutableStateOf(null) }
+    var selectTextContent: String? by remember { mutableStateOf(null) }
 
     if (endPollConfirmingEvent != null) {
         ConfirmationDialog(
@@ -398,13 +403,31 @@ fun MessagesView(
         )
     }
 
+    selectTextContent?.let { text ->
+        SelectTextBottomSheet(
+            text = text,
+            onDismiss = { selectTextContent = null },
+        )
+    }
+
     ActionListView(
         state = state.actionListState,
         onSelectAction = { action: TimelineItemAction, event: TimelineItem.Event ->
-            if (action == TimelineItemAction.EndPoll) {
-                endPollConfirmingEvent = event
-            } else {
-                onActionSelected(action, event)
+            when (action) {
+                TimelineItemAction.EndPoll -> {
+                    endPollConfirmingEvent = event
+                }
+                TimelineItemAction.SelectText -> {
+                    val textToSelect = when (val content = event.content) {
+                        is TimelineItemTextBasedContent -> content.plainText
+                        is TimelineItemStateContent -> content.body
+                        else -> content.captionOrNull()
+                    } ?: (event.content as? TimelineItemTextBasedContent)?.body
+                    selectTextContent = textToSelect
+                }
+                else -> {
+                    onActionSelected(action, event)
+                }
             }
         },
         onCustomReactionClick = { event ->

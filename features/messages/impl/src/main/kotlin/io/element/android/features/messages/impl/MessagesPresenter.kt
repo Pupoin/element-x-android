@@ -402,6 +402,7 @@ class MessagesPresenter(
             TimelineItemAction.Unpin -> handleUnpinAction(targetEvent)
             TimelineItemAction.ViewInTimeline -> Unit
             TimelineItemAction.RetrySending -> handleRetrySending(targetEvent)
+            TimelineItemAction.SelectText -> Unit
         }
     }
 

@@ -81,6 +81,9 @@ dependencies {
     implementation(libs.matrix.emojibase.bindings)
     implementation(projects.features.knockrequests.api)
     implementation(projects.features.roommembermoderation.api)
+    implementation("ru.noties:jlatexmath-android:0.2.0")
+    implementation("ru.noties:jlatexmath-android-font-greek:0.2.0")
+    implementation("ru.noties:jlatexmath-android-font-cyrillic:0.2.0")
 
     testCommonDependencies(libs, true)
     testImplementation(projects.libraries.matrix.test)

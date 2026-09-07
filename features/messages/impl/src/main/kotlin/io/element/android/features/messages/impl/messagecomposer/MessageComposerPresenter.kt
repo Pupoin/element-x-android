@@ -41,6 +41,7 @@ import io.element.android.features.messages.impl.messagecomposer.suggestions.Roo
 import io.element.android.features.messages.impl.messagecomposer.suggestions.SuggestionsProcessor
 import io.element.android.features.messages.impl.timeline.TimelineController
 import io.element.android.features.messages.impl.utils.TextPillificationHelper
+import io.element.android.features.messages.impl.utils.latex.LatexHelper
 import io.element.android.libraries.architecture.AsyncAction
 import io.element.android.libraries.architecture.Presenter
 import io.element.android.libraries.core.extensions.runCatchingExceptions
@@ -812,7 +813,8 @@ class MessageComposerPresenter(
                     }
                 }
                 .orEmpty()
-            Message(html = html, markdown = markdown, intentionalMentions = mentions)
+            val formattedHtml = LatexHelper.formatLatexToHtml(markdown = markdown, existingHtml = html)
+            Message(html = formattedHtml, markdown = markdown, intentionalMentions = mentions)
         } else {
             val markdown = markdownTextEditorState.getMessageMarkdown(permalinkBuilder)
             val mentions = if (withMentions) {
@@ -820,7 +822,8 @@ class MessageComposerPresenter(
             } else {
                 emptyList()
             }
-            Message(html = null, markdown = markdown, intentionalMentions = mentions)
+            val formattedHtml = LatexHelper.formatLatexToHtml(markdown = markdown, existingHtml = null)
+            Message(html = formattedHtml, markdown = markdown, intentionalMentions = mentions)
         }
     }
 

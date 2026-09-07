@@ -30,6 +30,7 @@ import io.element.android.features.messages.impl.timeline.model.event.TimelineIt
 import io.element.android.features.messages.impl.timeline.model.event.TimelineItemVideoContent
 import io.element.android.features.messages.impl.timeline.model.event.TimelineItemVoiceContent
 import io.element.android.features.messages.impl.utils.TextPillificationHelper
+import io.element.android.features.messages.impl.utils.latex.LatexHelper
 import io.element.android.libraries.androidutils.filesize.FileSizeFormatter
 import io.element.android.libraries.androidutils.text.safeLinkify
 import io.element.android.libraries.core.mimetype.MimeTypes
@@ -87,7 +88,7 @@ class TimelineItemContentMessageFactory(
                     prefix = "* $senderDisambiguatedDisplayName",
                 )
                 val formattedBody = dom?.let(::parseHtml)
-                    ?: textPillificationHelper.pillify(emoteBody).safeLinkify()
+                    ?: textPillificationHelper.pillify(emoteBody).safeLinkify().withLatex()
                 TimelineItemEmoteContent(
                     body = emoteBody,
                     htmlDocument = dom,
@@ -253,7 +254,7 @@ class TimelineItemContentMessageFactory(
                 val body = messageType.body.trimEnd()
                 val dom = messageType.formatted?.toHtmlDocument(permalinkParser = permalinkParser)
                 val formattedBody = dom?.let(::parseHtml)
-                    ?: textPillificationHelper.pillify(body).safeLinkify()
+                    ?: textPillificationHelper.pillify(body).safeLinkify().withLatex()
                 val htmlDocument = messageType.formatted?.toHtmlDocument(permalinkParser = permalinkParser)
                 TimelineItemNoticeContent(
                     body = body,
@@ -266,7 +267,7 @@ class TimelineItemContentMessageFactory(
                 val body = messageType.body.trimEnd()
                 val dom = messageType.formatted?.toHtmlDocument(permalinkParser = permalinkParser)
                 val formattedBody = dom?.let(::parseHtml)
-                    ?: textPillificationHelper.pillify(body).safeLinkify()
+                    ?: textPillificationHelper.pillify(body).safeLinkify().withLatex()
                 val htmlDocument = messageType.formatted?.toHtmlDocument(permalinkParser = permalinkParser)
                 TimelineItemTextContent(
                     body = body,
@@ -420,7 +421,7 @@ class TimelineItemContentMessageFactory(
                 TimelineItemTextContent(
                     body = body,
                     htmlDocument = null,
-                    formattedBody = textPillificationHelper.pillify(body).safeLinkify(),
+                    formattedBody = textPillificationHelper.pillify(body).safeLinkify().withLatex(),
                     isEdited = content.isEdited,
                 )
             }
@@ -437,12 +438,22 @@ class TimelineItemContentMessageFactory(
         return result?.takeIf { it.isFinite() }
     }
 
-    private fun parseHtml(document: Document): CharSequence? {
+    private fun parseHtml(document: Document): CharSequence {
+        LatexHelper.preprocessHtmlDocument(document)
         return htmlConverterProvider.provide()
             .fromDocumentToSpans(document)
             .let { textPillificationHelper.pillify(it) }
             .safeLinkify()
+            .withLatex()
     }
+}
+
+private fun CharSequence.withLatex(): CharSequence {
+    return LatexHelper.renderLatexSpans(this)
+}
+
+private fun CharSequence?.withLatexOrNull(): CharSequence? {
+    return this?.withLatex()
 }
 
 @Suppress("USELESS_ELVIS")

@@ -324,6 +324,8 @@ licensee {
     allow("BSD-2-Clause")
     allow("BSD-3-Clause")
     allow("EPL-1.0")
+    allow("GPL-2.0")
+    allow("GPL-2.0-or-later")
     allowUrl("https://opensource.org/license/bsd-3-clause")
     allowUrl("https://opensource.org/licenses/MIT")
     allowUrl("https://developer.android.com/studio/terms.html")
@@ -333,6 +335,9 @@ licensee {
     allowUrl("https://www.gnu.org/licenses/agpl-3.0.txt")
     allowUrl("https://github.com/mhssn95/compose-color-picker/blob/main/LICENSE")
     ignoreDependencies("com.github.matrix-org", "matrix-analytics-events")
+    ignoreDependencies("ru.noties", "jlatexmath-android")
+    ignoreDependencies("ru.noties", "jlatexmath-android-font-greek")
+    ignoreDependencies("ru.noties", "jlatexmath-android-font-cyrillic")
     // Ignore dependency that are not third-party licenses to us.
     ignoreDependencies(groupId = "io.element.android")
 }

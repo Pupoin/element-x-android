@@ -90,8 +90,12 @@ private object CustomHtmlToDomParser {
             "p",
             "br",
             // Add custom `mx-reply` tag, even if it's just to remove its contents from the plain text version of the message
-            "mx-reply"
+            "mx-reply",
+            "span",
+            "div",
+            "math",
         )
         .addAttributes("a", "href", "data-mention-type", "contenteditable")
+        .addAttributes(":all", "data-mx-maths")
         .addAttributes("ol", "start")
 }

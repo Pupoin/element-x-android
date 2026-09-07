@@ -8,20 +8,30 @@
 
 package io.element.android.features.messages.impl.timeline.components.event
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.net.Uri
 import android.text.SpannedString
+import android.widget.Toast
 import androidx.annotation.VisibleForTesting
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.unit.dp
+import androidx.core.content.getSystemService
 import io.element.android.compound.theme.ElementTheme
 import io.element.android.features.messages.impl.timeline.components.layout.ContentAvoidingLayout
 import io.element.android.features.messages.impl.timeline.components.layout.ContentAvoidingLayoutData
@@ -30,6 +40,7 @@ import io.element.android.features.messages.impl.timeline.model.event.TimelineIt
 import io.element.android.features.messages.impl.timeline.model.event.TimelineItemTextBasedContentPreviewParam
 import io.element.android.features.messages.impl.timeline.model.event.aTimelineItemTextContent
 import io.element.android.features.messages.impl.utils.containsOnlyEmojis
+import io.element.android.features.messages.impl.utils.latex.LatexHelper
 import io.element.android.libraries.androidutils.text.LinkifyHelper
 import io.element.android.libraries.designsystem.preview.ElementPreview
 import io.element.android.libraries.designsystem.preview.PreviewsDayNight
@@ -50,6 +61,25 @@ fun TimelineItemTextView(
     // The View <-> Compose interop is not working well with Compose UI tests (it loops indefinitely), so we skip it in the UI test mode.
     if (LocalUiTestMode.current) return
 
+    val context = LocalContext.current
+    androidx.compose.runtime.LaunchedEffect(Unit) {
+        try {
+            ru.noties.jlatexmath.JLatexMathAndroid.init(context.applicationContext)
+        } catch (_: Throwable) {
+            }
+    }
+    val handleLinkClick: (Link) -> Unit = { link ->
+        val url = link.url
+        if (url.startsWith("latex://")) {
+            val formula = Uri.decode(url.removePrefix("latex://"))
+            val clipboard = context.getSystemService<ClipboardManager>()
+            clipboard?.setPrimaryClip(ClipData.newPlainText("LaTeX Formula", formula))
+            Toast.makeText(context, "已复制 LaTeX: $formula", Toast.LENGTH_SHORT).show()
+        } else {
+            onLinkClick(link)
+        }
+    }
+
     val isInPreview = LocalInspectionMode.current
     val emojiOnly = remember(content.body, content.formattedBody, isInPreview) {
         content.formattedBody.toString() == content.body &&
@@ -66,15 +96,77 @@ fun TimelineItemTextView(
         LocalTextStyle provides textStyle
     ) {
         val text = getTextWithResolvedMentions(content)
-        Box(modifier.semantics { contentDescription = content.plainText }) {
-            EditorStyledText(
-                text = text,
-                onLinkClickedListener = onLinkClick,
-                onLinkLongClickedListener = onLinkLongClick,
-                style = ElementRichTextEditorStyle.textStyle(),
-                onTextLayout = ContentAvoidingLayout.measureLegacyLastTextLine(onContentLayoutChange = onContentLayoutChange),
-                releaseOnDetach = false,
-            )
+        val segments = remember(text) {
+            LatexHelper.splitByBlockMath(text)
+        }
+
+        if (segments.size == 1 && segments[0] is LatexHelper.TextSegment.Text) {
+            Box(modifier.semantics { contentDescription = content.plainText }) {
+                EditorStyledText(
+                    text = text,
+                    onLinkClickedListener = handleLinkClick,
+                    onLinkLongClickedListener = onLinkLongClick,
+                    style = ElementRichTextEditorStyle.textStyle(),
+                    onTextLayout = ContentAvoidingLayout.measureLegacyLastTextLine(onContentLayoutChange = onContentLayoutChange),
+                    releaseOnDetach = false,
+                )
+            }
+        } else {
+            Column(
+                modifier = modifier.semantics { contentDescription = content.plainText },
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                segments.forEachIndexed { index, segment ->
+                    val isLast = index == segments.lastIndex
+                    when (segment) {
+                        is LatexHelper.TextSegment.Text -> {
+                            EditorStyledText(
+                                text = segment.text,
+                                onLinkClickedListener = handleLinkClick,
+                                onLinkLongClickedListener = onLinkLongClick,
+                                style = ElementRichTextEditorStyle.textStyle(),
+                                onTextLayout = if (isLast) {
+                                    ContentAvoidingLayout.measureLegacyLastTextLine(onContentLayoutChange = onContentLayoutChange)
+                                } else {
+                                    {}
+                                },
+                                releaseOnDetach = false,
+                            )
+                        }
+                        is LatexHelper.TextSegment.BlockMath -> {
+                            val formula = segment.formula
+                            val fullFormula = "\$\$$formula\$\$"
+                            val onLongClickBlock = {
+                                onLinkLongClick(Link("latex://${Uri.encode(fullFormula)}"))
+                            }
+                            if (isLast) {
+                                Box(
+                                    modifier = Modifier.onSizeChanged { size ->
+                                        onContentLayoutChange(
+                                            ContentAvoidingLayoutData(
+                                                contentWidth = size.width,
+                                                contentHeight = size.height,
+                                                nonOverlappingContentWidth = size.width,
+                                                nonOverlappingContentHeight = size.height,
+                                            )
+                                        )
+                                    }
+                                ) {
+                                    LatexBlockMathView(
+                                        rawFormula = formula,
+                                        onLongClick = onLongClickBlock,
+                                    )
+                                }
+                            } else {
+                                LatexBlockMathView(
+                                    rawFormula = formula,
+                                    onLongClick = onLongClickBlock,
+                                )
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }

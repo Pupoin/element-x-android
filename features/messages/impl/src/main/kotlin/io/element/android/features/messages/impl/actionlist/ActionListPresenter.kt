@@ -231,8 +231,10 @@ class DefaultActionListPresenter(
             }
             if (timelineItem.content.canBeCopied()) {
                 add(TimelineItemAction.CopyText)
+                add(TimelineItemAction.SelectText)
             } else if (timelineItem.content.captionOrNull().isNullOrBlank().not()) {
                 add(TimelineItemAction.CopyCaption)
+                add(TimelineItemAction.SelectText)
             }
             if (timelineItem.isRemote) {
                 add(TimelineItemAction.CopyLink)
