@@ -21,6 +21,7 @@ import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
@@ -50,6 +51,8 @@ import io.element.android.libraries.textcomposer.mentions.LocalMentionSpanUpdate
 import io.element.android.wysiwyg.compose.EditorStyledText
 import io.element.android.wysiwyg.link.Link
 
+val LocalRenderLatexEnabled = compositionLocalOf { true }
+
 @Composable
 fun TimelineItemTextView(
     content: TimelineItemTextBasedContent,
@@ -61,12 +64,13 @@ fun TimelineItemTextView(
     // The View <-> Compose interop is not working well with Compose UI tests (it loops indefinitely), so we skip it in the UI test mode.
     if (LocalUiTestMode.current) return
 
+    val isRenderLatexEnabled = LocalRenderLatexEnabled.current
     val context = LocalContext.current
     androidx.compose.runtime.LaunchedEffect(Unit) {
         try {
             ru.noties.jlatexmath.JLatexMathAndroid.init(context.applicationContext)
         } catch (_: Throwable) {
-            }
+        }
     }
     val handleLinkClick: (Link) -> Unit = { link ->
         val url = link.url
@@ -95,9 +99,20 @@ fun TimelineItemTextView(
         LocalContentColor provides ElementTheme.colors.textPrimary,
         LocalTextStyle provides textStyle
     ) {
-        val text = getTextWithResolvedMentions(content)
-        val segments = remember(text) {
-            LatexHelper.splitByBlockMath(text)
+        val rawText = getTextWithResolvedMentions(content)
+        val text = remember(rawText, isRenderLatexEnabled) {
+            if (isRenderLatexEnabled) {
+                rawText
+            } else {
+                LatexHelper.removeLatexSpans(rawText)
+            }
+        }
+        val segments = remember(text, isRenderLatexEnabled) {
+            if (isRenderLatexEnabled) {
+                LatexHelper.splitByBlockMath(text)
+            } else {
+                listOf(LatexHelper.TextSegment.Text(text))
+            }
         }
 
         if (segments.size == 1 && segments[0] is LatexHelper.TextSegment.Text) {

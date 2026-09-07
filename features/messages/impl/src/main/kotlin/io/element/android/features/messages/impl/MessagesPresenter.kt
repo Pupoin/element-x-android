@@ -89,6 +89,7 @@ import io.element.android.libraries.matrix.ui.model.dmUserStatus
 import io.element.android.libraries.matrix.ui.model.getAvatarData
 import io.element.android.libraries.matrix.ui.room.getDirectRoomMember
 import io.element.android.libraries.textcomposer.model.MessageComposerMode
+import io.element.android.libraries.preferences.api.store.AppPreferencesStore
 import io.element.android.libraries.ui.strings.CommonStrings
 import io.element.android.services.analytics.api.AnalyticsService
 import kotlinx.collections.immutable.persistentListOf
@@ -132,6 +133,7 @@ class MessagesPresenter(
     private val markAsFullyRead: MarkAsFullyRead,
     private val liveLocationShareManager: ActiveLiveLocationShareManager,
     @SessionCoroutineScope private val sessionCoroutineScope: CoroutineScope,
+    private val appPreferencesStore: AppPreferencesStore,
 ) : Presenter<MessagesState> {
     @AssistedFactory
     interface Factory {
@@ -170,6 +172,9 @@ class MessagesPresenter(
         val pinnedMessagesBannerState = pinnedMessagesBannerPresenter.present()
         val roomCallState = roomCallStatePresenter.present()
         val roomMemberModerationState = roomMemberModerationPresenter.present()
+        val isRenderLatexEnabled by remember {
+            appPreferencesStore.isRenderLatexEnabledFlow()
+        }.collectAsState(initial = true)
         val threadsList by produceState(persistentListOf()) {
             room.threadsListService.subscribeToItemUpdates()
                 .onStart { room.threadsListService.paginate() }
@@ -317,6 +322,7 @@ class MessagesPresenter(
             inviteProgress = inviteProgress.value,
             showReinvitePrompt = showReinvitePrompt,
             enableTextFormatting = MessageComposerConfig.ENABLE_RICH_TEXT_EDITING,
+            isRenderLatexEnabled = isRenderLatexEnabled,
             roomCallState = roomCallState,
             appName = buildMeta.applicationName,
             pinnedMessagesBannerState = pinnedMessagesBannerState,

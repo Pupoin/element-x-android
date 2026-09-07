@@ -35,8 +35,10 @@ class InMemoryAppPreferencesStore(
     callRingtone: NotificationSound = NotificationSound.SystemDefault,
     callRingtoneChannelVersion: Int = 0,
     callRingtoneDisplayName: String? = null,
+    isRenderLatexEnabled: Boolean = true,
 ) : AppPreferencesStore {
     private val isDeveloperModeEnabled = MutableStateFlow(isDeveloperModeEnabled)
+    private val isRenderLatexEnabled = MutableStateFlow(isRenderLatexEnabled)
     private val customElementCallBaseUrl = MutableStateFlow(customElementCallBaseUrl)
     private val theme = MutableStateFlow(theme)
     private val liveLocationMinimumDistanceUpdate = MutableStateFlow(liveLocationMinimumDistanceUpdate)
@@ -58,6 +60,14 @@ class InMemoryAppPreferencesStore(
 
     override fun isDeveloperModeEnabledFlow(): Flow<Boolean> {
         return isDeveloperModeEnabled
+    }
+
+    override suspend fun setRenderLatexEnabled(enabled: Boolean) {
+        isRenderLatexEnabled.value = enabled
+    }
+
+    override fun isRenderLatexEnabledFlow(): Flow<Boolean> {
+        return isRenderLatexEnabled
     }
 
     override suspend fun setCustomElementCallBaseUrl(string: String?) {

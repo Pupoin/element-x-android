@@ -1493,6 +1493,7 @@ class MessagesPresenterTest {
             markAsFullyRead = markAsFullyRead,
             liveLocationShareManager = liveLocationShareManager,
             sessionCoroutineScope = backgroundScope,
+            appPreferencesStore = io.element.android.libraries.preferences.test.InMemoryAppPreferencesStore(),
         )
     }
 }

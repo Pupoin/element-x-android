@@ -151,6 +151,7 @@ fun aMessagesState(
     inviteProgress = AsyncData.Uninitialized,
     showReinvitePrompt = showReinvitePrompt,
     enableTextFormatting = true,
+    isRenderLatexEnabled = true,
     roomCallState = roomCallState,
     appName = "Element",
     pinnedMessagesBannerState = pinnedMessagesBannerState,

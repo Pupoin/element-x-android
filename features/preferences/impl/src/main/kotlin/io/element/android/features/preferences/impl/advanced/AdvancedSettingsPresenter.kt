@@ -43,6 +43,9 @@ class AdvancedSettingsPresenter(
         val isDeveloperModeEnabled by remember {
             appPreferencesStore.isDeveloperModeEnabledFlow()
         }.collectAsState(initial = false)
+        val isRenderLatexEnabled by remember {
+            appPreferencesStore.isRenderLatexEnabledFlow()
+        }.collectAsState(initial = true)
         val isSharePresenceEnabled by remember {
             sessionPreferencesStore.isSharePresenceEnabled()
         }.collectAsState(initial = true)
@@ -105,6 +108,9 @@ class AdvancedSettingsPresenter(
                 is AdvancedSettingsEvent.SetDeveloperModeEnabled -> sessionCoroutineScope.launch {
                     appPreferencesStore.setDeveloperModeEnabled(event.enabled)
                 }
+                is AdvancedSettingsEvent.SetRenderLatexEnabled -> sessionCoroutineScope.launch {
+                    appPreferencesStore.setRenderLatexEnabled(event.enabled)
+                }
                 is AdvancedSettingsEvent.SetSharePresenceEnabled -> sessionCoroutineScope.launch {
                     sessionPreferencesStore.setSharePresence(event.enabled)
                 }
@@ -135,6 +141,7 @@ class AdvancedSettingsPresenter(
 
         return AdvancedSettingsState(
             isDeveloperModeEnabled = isDeveloperModeEnabled,
+            isRenderLatexEnabled = isRenderLatexEnabled,
             isSharePresenceEnabled = isSharePresenceEnabled,
             mediaOptimizationState = mediaOptimizationState,
             theme = themeOption,

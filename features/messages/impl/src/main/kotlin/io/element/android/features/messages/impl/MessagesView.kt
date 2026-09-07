@@ -35,6 +35,7 @@ import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -89,6 +90,7 @@ import io.element.android.features.messages.impl.timeline.components.reactionsum
 import io.element.android.features.messages.impl.timeline.components.reactionsummary.ReactionSummaryView
 import io.element.android.features.messages.impl.timeline.components.receipt.bottomsheet.ReadReceiptBottomSheet
 import io.element.android.features.messages.impl.timeline.components.receipt.bottomsheet.ReadReceiptBottomSheetEvent
+import io.element.android.features.messages.impl.timeline.components.event.LocalRenderLatexEnabled
 import io.element.android.features.messages.impl.timeline.components.selection.SelectTextBottomSheet
 import io.element.android.features.messages.impl.timeline.model.TimelineItem
 import io.element.android.features.messages.impl.timeline.model.TimelineItemGroupPosition
@@ -222,6 +224,7 @@ fun MessagesView(
     }
 
     val expandableState = rememberExpandableBottomSheetLayoutState()
+    CompositionLocalProvider(LocalRenderLatexEnabled provides state.isRenderLatexEnabled) {
     ExpandableBottomSheetLayout(
         modifier = modifier
             .fillMaxSize()
@@ -478,6 +481,7 @@ fun MessagesView(
             state.timelineState.eventSink(TimelineEvent.HideSendFailureDialog)
         },
     )
+    } // CompositionLocalProvider
 }
 
 @Composable

@@ -163,6 +163,26 @@ object LatexHelper {
         return spannable
     }
 
+    /**
+     * Removes [LatexFormulaSpan] and formula [URLSpan] instances from [text] if present,
+     * reverting the text to its raw text representation without custom formula rendering.
+     */
+    fun removeLatexSpans(text: CharSequence): CharSequence {
+        if (text !is Spanned) return text
+        val spannable = SpannableStringBuilder(text)
+        val formulaSpans = spannable.getSpans<LatexFormulaSpan>()
+        for (span in formulaSpans) {
+            spannable.removeSpan(span)
+        }
+        val urlSpans = spannable.getSpans<URLSpan>()
+        for (span in urlSpans) {
+            if (span.url?.startsWith("latex://") == true) {
+                spannable.removeSpan(span)
+            }
+        }
+        return spannable
+    }
+
     private fun Spanned.canApplyMathSpan(start: Int, end: Int): Boolean {
         if (getSpans<CodeBlockSpan>(start, end).isNotEmpty()) return false
         if (getSpans<InlineCodeSpan>(start, end).isNotEmpty()) return false

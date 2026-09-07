@@ -29,6 +29,14 @@ interface AppPreferencesStore {
     fun isDeveloperModeEnabledFlow(): Flow<Boolean>
 
     /**
+     * @param enabled true to render LaTeX formulas as mathematical equations.
+     */
+    suspend fun setRenderLatexEnabled(enabled: Boolean)
+
+    /** Whether LaTeX formula rendering is enabled; defaults to `true`. */
+    fun isRenderLatexEnabledFlow(): Flow<Boolean>
+
+    /**
      * @param string the Element Call deployment to use, or `null` to go back to the one from the homeserver.
      */
     suspend fun setCustomElementCallBaseUrl(string: String?)

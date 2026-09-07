@@ -35,6 +35,7 @@ open class AdvancedSettingsStatePreviewParam : PreviewParameterProvider<Advanced
 
 fun aAdvancedSettingsState(
     isDeveloperModeEnabled: Boolean = false,
+    isRenderLatexEnabled: Boolean = true,
     isSharePresenceEnabled: Boolean = false,
     mediaOptimizationState: MediaOptimizationState = MediaOptimizationState.AllMedia(isEnabled = false),
     theme: ThemeOption = ThemeOption.System,
@@ -47,6 +48,7 @@ fun aAdvancedSettingsState(
     eventSink: (AdvancedSettingsEvent) -> Unit = {},
 ) = AdvancedSettingsState(
     isDeveloperModeEnabled = isDeveloperModeEnabled,
+    isRenderLatexEnabled = isRenderLatexEnabled,
     isSharePresenceEnabled = isSharePresenceEnabled,
     mediaOptimizationState = mediaOptimizationState,
     theme = theme,

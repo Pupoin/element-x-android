@@ -30,6 +30,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
 private val developerModeKey = booleanPreferencesKey("developerMode")
+private val renderLatexKey = booleanPreferencesKey("renderLatex")
 private val customElementCallBaseUrlKey = stringPreferencesKey("elementCallBaseUrl")
 private val themeKey = stringPreferencesKey("theme")
 private val hideInviteAvatarsKey = booleanPreferencesKey("hideInviteAvatars")
@@ -66,6 +67,18 @@ class DefaultAppPreferencesStore(
         return store.data.map { prefs ->
             // disabled by default on release and nightly, enabled by default on debug
             prefs[developerModeKey] ?: (buildMeta.buildType == BuildType.DEBUG)
+        }
+    }
+
+    override suspend fun setRenderLatexEnabled(enabled: Boolean) {
+        store.edit { prefs ->
+            prefs[renderLatexKey] = enabled
+        }
+    }
+
+    override fun isRenderLatexEnabledFlow(): Flow<Boolean> {
+        return store.data.map { prefs ->
+            prefs[renderLatexKey] ?: true
         }
     }
 

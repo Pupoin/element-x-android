@@ -106,6 +106,18 @@ fun AdvancedSettingsView(
         )
         ListItem(
             content = {
+                Text(text = stringResource(id = CommonStrings.screen_advanced_settings_render_latex))
+            },
+            supportingContent = {
+                Text(text = stringResource(id = CommonStrings.screen_advanced_settings_render_latex_description))
+            },
+            trailingContent = ListItemContent.Switch(
+                checked = state.isRenderLatexEnabled,
+            ),
+            onClick = { state.eventSink(AdvancedSettingsEvent.SetRenderLatexEnabled(!state.isRenderLatexEnabled)) }
+        )
+        ListItem(
+            content = {
                 Text(text = stringResource(id = R.string.screen_advanced_settings_share_presence))
             },
             supportingContent = {

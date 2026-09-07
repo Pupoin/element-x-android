@@ -11,4 +11,6 @@
     <string name="a11y_active">Active</string>
     <string name="a11y_inactive">Inactive</string>
     <string name="action_select_text">Select text</string>
+    <string name="screen_advanced_settings_render_latex">Render mathematical formulas</string>
+    <string name="screen_advanced_settings_render_latex_description">Render LaTeX formulas as mathematical equations and scrollable cards</string>
 </resources>
