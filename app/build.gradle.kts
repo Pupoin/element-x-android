@@ -123,6 +123,7 @@ android {
                 oAuthRedirectSchemeBase,
             )
             signingConfig = signingConfigs.getByName("debug")
+            applicationIdSuffix = ".custom"
 
             optimization {
                 enable = true
