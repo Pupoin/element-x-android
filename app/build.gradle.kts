@@ -116,7 +116,7 @@ android {
         }
 
         getByName("release") {
-            resValue("string", "app_name", baseAppName)
+            resValue("string", "app_name", "$baseAppName+")
             resValue(
                 "string",
                 "login_redirect_scheme",
