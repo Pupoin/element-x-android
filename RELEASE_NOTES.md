@@ -33,6 +33,11 @@ Element X+ **v26.09.08** is a major feature update following `v26.09.1-latex`. I
 - **Universal Bubble Long-Press**: Tuned gesture hit testing across messages so long-pressing anywhere (text, code borders, formula cards, or blank space) reliably summons the message action sheet.
 - **Rich Message Quotes & Lists**: Beautiful native rendering for nested block quotes and bulleted/numbered lists.
 
+#### 6. 📐 LaTeX Formula Rendering Compatibility
+- **Support for `@` Symbol**: Solved crash caused by missing ASCII 64 (`@`) in JLatexMath fonts by automatically mapping it to `\mathrm{at}\ ` (e.g. `@alice:example.org`).
+- **Line Break Spacing Parameters**: Automatically strips optional bracket arguments on line breaks like `\\[4pt]`, `\\[-2pt]`, and `\\[14pt]`.
+- **Monospace Font Macro Parity**: Automatically normalizes `\texttt` macros to JLatexMath's native `\mathtt`.
+
 ---
 
 ## 🇨🇳 中文：更新说明 (v26.09.08)
@@ -65,6 +70,11 @@ Element X+ **v26.09.08** 是继 `v26.09.1-latex` 之后的重大功能更新版�
 #### 5. 💬 消息手势与富文本细节调优
 - **全域长按菜单修复**：优化手势分发与命中测试，长按普通文本、代码卡片、公式或气泡空白处的任何位置均能稳定弹出操作气泡与菜单。
 - **引用块与列表增强**：原生渲染多层 Markdown 块引用（Quote）与有序/无序列表，对齐现代排版体验。
+
+#### 6. 📐 LaTeX 复杂数学公式兼容性深度增强
+- **支持 `@` 符号自动转义**：修复因 JLatexMath 字体库缺少 ASCII 64 (`@`) 导致的渲染崩溃，自动规范映射为 `\mathrm{at}\ `（如优雅支持 `@alice:example.org` 等 Matrix ID）。
+- **换行间距参数兼容**：自动兼容并剥离 `\\[4pt]`、`\\[-2pt]`、`\\[14pt]` 等可选间距参数，避免非法符号错误。
+- **等宽字体宏兼容**：自动将 `\texttt` 宏映射至 JLatexMath 原生支持的 `\mathtt`。
 
 ---
 
