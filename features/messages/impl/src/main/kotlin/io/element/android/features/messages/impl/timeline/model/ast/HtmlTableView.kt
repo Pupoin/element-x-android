@@ -13,7 +13,9 @@ import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,27 +25,37 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.content.getSystemService
 import io.element.android.compound.theme.ElementTheme
+import io.element.android.features.messages.impl.timeline.model.ast.viewer.TableFullscreenViewer
 
 @Composable
 fun HtmlTableView(
     rows: List<List<List<InlineNode>>>,
     modifier: Modifier = Modifier,
     onLinkClick: ((String) -> Unit)? = null,
+    onLongClick: (() -> Unit)? = null,
 ) {
     if (rows.isEmpty()) return
     val context = LocalContext.current
     val columnCount = rows.maxOfOrNull { it.size } ?: 0
     if (columnCount == 0) return
+
+    var isFullscreen by rememberSaveable { mutableStateOf(false) }
 
     // Calculate balanced column widths across all rows
     val columnWidths = remember(rows) {
@@ -60,24 +72,86 @@ fun HtmlTableView(
         val markdown = buildMarkdownTable(rows)
         val clipboard = context.getSystemService<ClipboardManager>()
         clipboard?.setPrimaryClip(ClipData.newPlainText("Markdown Table", markdown))
-        Toast.makeText(context, "已复制表格内容", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, "已复制 Markdown 表格", Toast.LENGTH_SHORT).show()
     }
 
     val scrollState = rememberScrollState()
 
+    val gestureModifier = if (onLongClick != null) {
+        Modifier.pointerInput(onLongClick) {
+            detectTapGestures(
+                onLongPress = { onLongClick() }
+            )
+        }
+    } else {
+        Modifier
+    }
+
     Box(
         modifier = modifier
             .fillMaxWidth()
+            .then(gestureModifier)
             .background(Color(0x10808080), RoundedCornerShape(8.dp))
             .border(1.dp, Color(0x2D808080), RoundedCornerShape(8.dp))
-            .clickable(onClick = copyTableAction)
-            .padding(6.dp)
+            .padding(8.dp)
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .horizontalScroll(scrollState)
-        ) {
+        Column {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 6.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Box(
+                    modifier = Modifier
+                        .background(Color(0x22808080), RoundedCornerShape(4.dp))
+                        .padding(horizontal = 6.dp, vertical = 2.dp)
+                ) {
+                    Text(
+                        text = "TABLE",
+                        style = ElementTheme.typography.fontBodyXsMedium,
+                        color = ElementTheme.colors.textSecondary,
+                    )
+                }
+
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .background(Color(0x18808080), RoundedCornerShape(4.dp))
+                            .clickable(onClick = copyTableAction)
+                            .padding(horizontal = 8.dp, vertical = 2.dp)
+                    ) {
+                        Text(
+                            text = "复制 Markdown",
+                            style = ElementTheme.typography.fontBodyXsMedium,
+                            color = ElementTheme.colors.textActionAccent,
+                        )
+                    }
+
+                    Box(
+                        modifier = Modifier
+                            .background(Color(0x18808080), RoundedCornerShape(4.dp))
+                            .clickable { isFullscreen = true }
+                            .padding(horizontal = 8.dp, vertical = 2.dp)
+                    ) {
+                        Text(
+                            text = "全屏",
+                            style = ElementTheme.typography.fontBodyXsMedium,
+                            color = ElementTheme.colors.textActionAccent,
+                        )
+                    }
+                }
+            }
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(scrollState)
+            ) {
             Column(
                 modifier = Modifier
                     .background(Color(0x08808080), RoundedCornerShape(6.dp))
@@ -110,6 +184,7 @@ fun HtmlTableView(
                                         ElementTheme.typography.fontBodyMdRegular
                                     },
                                     onLinkClick = onLinkClick,
+                                    onLongClick = onLongClick,
                                 )
                             }
                         }
@@ -123,6 +198,15 @@ fun HtmlTableView(
                 }
             }
         }
+    }
+}
+
+    if (isFullscreen) {
+        TableFullscreenViewer(
+            rows = rows,
+            onDismiss = { isFullscreen = false },
+            onLinkClick = onLinkClick,
+        )
     }
 }
 

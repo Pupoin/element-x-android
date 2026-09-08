@@ -36,30 +36,52 @@ object MarkdownToMessageAstParser {
                     i++
                 }
                 if (i < lines.size) i++ // consume closing ```
-                blocks.add(MessageBlock.CodeBlock(language = lang, code = codeLines.joinToString("\n")))
+                val codeContent = codeLines.joinToString("\n")
+                val finalLang = lang ?: io.element.android.features.messages.impl.timeline.model.ast.code.DefaultCodeSyntaxHighlighter
+                    .detectLanguage(codeContent)
+                    .takeIf { it.isNotBlank() }
+                blocks.add(MessageBlock.CodeBlock(language = finalLang, code = codeContent))
                 continue
             }
 
-            // 2. Check Block Math ($$...$$)
-            if (trimmedLine.startsWith("$$")) {
+            // 2. Check Block Math ($$...$$ or \begin{...})
+            if (trimmedLine.startsWith("$$") || trimmedLine.startsWith("\\begin{")) {
                 val mathLines = mutableListOf<String>()
-                if (trimmedLine.length > 2 && trimmedLine.endsWith("$$")) {
-                    blocks.add(MessageBlock.BlockMath(trimmedLine.removePrefix("$$").removeSuffix("$$").trim()))
+                if (trimmedLine.startsWith("$$")) {
+                    if (trimmedLine.length > 2 && trimmedLine.endsWith("$$")) {
+                        blocks.add(MessageBlock.BlockMath(trimmedLine.removePrefix("$$").removeSuffix("$$").trim()))
+                        i++
+                        continue
+                    }
+                    mathLines.add(trimmedLine.removePrefix("$$"))
                     i++
+                    while (i < lines.size && !lines[i].trim().endsWith("$$")) {
+                        mathLines.add(lines[i])
+                        i++
+                    }
+                    if (i < lines.size) {
+                        mathLines.add(lines[i].trim().removeSuffix("$$"))
+                        i++
+                    }
+                    blocks.add(MessageBlock.BlockMath(mathLines.joinToString("\n").trim()))
                     continue
+                } else {
+                    val envMatch = Regex("""^\\begin\{([^}]+)\}""").find(trimmedLine)
+                    val envName = envMatch?.groupValues?.get(1)
+                    if (envName != null) {
+                        val endTag = "\\end{$envName}"
+                        while (i < lines.size) {
+                            mathLines.add(lines[i])
+                            if (lines[i].contains(endTag)) {
+                                i++
+                                break
+                            }
+                            i++
+                        }
+                        blocks.add(MessageBlock.BlockMath(mathLines.joinToString("\n").trim()))
+                        continue
+                    }
                 }
-                mathLines.add(trimmedLine.removePrefix("$$"))
-                i++
-                while (i < lines.size && !lines[i].trim().endsWith("$$")) {
-                    mathLines.add(lines[i])
-                    i++
-                }
-                if (i < lines.size) {
-                    mathLines.add(lines[i].trim().removeSuffix("$$"))
-                    i++
-                }
-                blocks.add(MessageBlock.BlockMath(mathLines.joinToString("\n").trim()))
-                continue
             }
 
             // 3. Check Headings (# to ######)

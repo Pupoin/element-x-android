@@ -7,7 +7,6 @@
 
 package io.element.android.features.messages.impl.utils.heading
 
-import android.text.SpannableString
 import android.text.Spanned
 import android.text.style.RelativeSizeSpan
 import androidx.core.text.getSpans
@@ -17,7 +16,6 @@ import org.jsoup.Jsoup
 import org.junit.Test
 
 class HeadingHelperTest : RobolectricTest() {
-
     @Test
     fun `enrichHeadings - applies RelativeSizeSpan to h1 and h2 from HTML document`() {
         val html = """

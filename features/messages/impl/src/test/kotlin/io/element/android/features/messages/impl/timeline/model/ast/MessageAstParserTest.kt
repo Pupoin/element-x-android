@@ -11,7 +11,6 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 
 class MessageAstParserTest {
-
     @Test
     fun `HtmlToMessageAstParser - parses heading, table, codeblock, and lists`() {
         val html = """
@@ -147,5 +146,28 @@ class MessageAstParserTest {
         assertThat(blocks).hasSize(1)
         val p = blocks[0] as MessageBlock.Paragraph
         assertThat((p.children[0] as InlineNode.Text).value).isEqualTo("Actual message")
+    }
+
+    @Test
+    fun `MessageAstParser - elevates tall fraction formula to block math and preserves short inline formula`() {
+        val raw = "设分式 $\\frac{a+b}{c+d}$ 与短公式 \$x\$ 是成立的。"
+        val blocks = MessageAstParser.parse(formattedBody = null, rawBody = raw)
+
+        assertThat(blocks).hasSize(3)
+
+        // 1. First paragraph: "设分式"
+        assertThat(blocks[0]).isInstanceOf(MessageBlock.Paragraph::class.java)
+        val p1 = blocks[0] as MessageBlock.Paragraph
+        assertThat((p1.children[0] as InlineNode.Text).value).isEqualTo("设分式")
+
+        // 2. Elevated block math: \frac{a+b}{c+d}
+        assertThat(blocks[1]).isInstanceOf(MessageBlock.BlockMath::class.java)
+        val mathBlock = blocks[1] as MessageBlock.BlockMath
+        assertThat(mathBlock.formula).isEqualTo("\\frac{a+b}{c+d}")
+
+        // 3. Second paragraph: "与短公式 $x$ 是成立的。" (with $x$ remaining inline!)
+        assertThat(blocks[2]).isInstanceOf(MessageBlock.Paragraph::class.java)
+        val p2 = blocks[2] as MessageBlock.Paragraph
+        assertThat(p2.children.any { it is InlineNode.InlineMath && it.formula == "x" }).isTrue()
     }
 }

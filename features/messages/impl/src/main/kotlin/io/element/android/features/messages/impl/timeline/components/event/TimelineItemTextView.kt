@@ -14,9 +14,7 @@ import android.net.Uri
 import android.text.SpannedString
 import android.widget.Toast
 import androidx.annotation.VisibleForTesting
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.runtime.Composable
@@ -26,28 +24,22 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
-import androidx.compose.ui.unit.dp
 import androidx.core.content.getSystemService
 import io.element.android.compound.theme.ElementTheme
 import io.element.android.features.messages.impl.timeline.components.layout.ContentAvoidingLayout
 import io.element.android.features.messages.impl.timeline.components.layout.ContentAvoidingLayoutData
-import io.element.android.features.messages.impl.timeline.model.event.AN_EMOJI_ONLY_TEXT
+import io.element.android.features.messages.impl.timeline.model.ast.InlineNode
+import io.element.android.features.messages.impl.timeline.model.ast.MessageAstParser
+import io.element.android.features.messages.impl.timeline.model.ast.MessageBlock
+import io.element.android.features.messages.impl.timeline.model.ast.MessageBlocksView
 import io.element.android.features.messages.impl.timeline.model.event.TimelineItemTextBasedContent
 import io.element.android.features.messages.impl.timeline.model.event.TimelineItemTextBasedContentPreviewParam
 import io.element.android.features.messages.impl.timeline.model.event.aTimelineItemTextContent
-import io.element.android.features.messages.impl.timeline.model.ast.HtmlToMessageAstParser
-import io.element.android.features.messages.impl.timeline.model.ast.MarkdownToMessageAstParser
-import io.element.android.features.messages.impl.timeline.model.ast.MessageBlock
-import io.element.android.features.messages.impl.timeline.model.ast.MessageBlocksView
-import io.element.android.features.messages.impl.utils.containsOnlyEmojis
 import io.element.android.features.messages.impl.utils.latex.LatexHelper
-import io.element.android.features.messages.impl.utils.table.TableData
-import io.element.android.features.messages.impl.utils.table.TableHelper
 import io.element.android.libraries.androidutils.text.LinkifyHelper
 import io.element.android.libraries.designsystem.preview.ElementPreview
 import io.element.android.libraries.designsystem.preview.PreviewsDayNight
@@ -62,9 +54,10 @@ val LocalRenderLatexEnabled = compositionLocalOf { true }
 @Composable
 fun TimelineItemTextView(
     content: TimelineItemTextBasedContent,
-    onLinkClick: (Link) -> Unit,
-    onLinkLongClick: (Link) -> Unit,
     modifier: Modifier = Modifier,
+    onLongClick: (() -> Unit)? = null,
+    onLinkClick: (Link) -> Unit = {},
+    onLinkLongClick: (Link) -> Unit = {},
     onContentLayoutChange: (ContentAvoidingLayoutData) -> Unit = {},
 ) {
     // The View <-> Compose interop is not working well with Compose UI tests (it loops indefinitely), so we skip it in the UI test mode.
@@ -80,27 +73,17 @@ fun TimelineItemTextView(
     }
     val handleLinkClick: (Link) -> Unit = { link ->
         val url = link.url
-        if (url.startsWith("latex://")) {
-            val formula = Uri.decode(url.removePrefix("latex://"))
-            val clipboard = context.getSystemService<ClipboardManager>()
-            clipboard?.setPrimaryClip(ClipData.newPlainText("LaTeX Formula", formula))
-            Toast.makeText(context, "已复制 LaTeX: $formula", Toast.LENGTH_SHORT).show()
+        if (isRenderLatexEnabled && url.startsWith("latex://")) {
+            val encoded = url.removePrefix("latex://")
+            val formula = android.net.Uri.decode(encoded)
+            val clipboard = context.getSystemService<android.content.ClipboardManager>()
+            clipboard?.setPrimaryClip(android.content.ClipData.newPlainText("LaTeX Formula", formula))
+            android.widget.Toast.makeText(context, "已复制 LaTeX 公式", android.widget.Toast.LENGTH_SHORT).show()
         } else {
             onLinkClick(link)
         }
     }
-
-    val isInPreview = LocalInspectionMode.current
-    val emojiOnly = remember(content.body, content.formattedBody, isInPreview) {
-        content.formattedBody.toString() == content.body &&
-            content.body.replace(" ", "").let { body ->
-                if (isInPreview) body == AN_EMOJI_ONLY_TEXT else body.containsOnlyEmojis()
-            }
-    }
-    val textStyle = when {
-        emojiOnly -> ElementTheme.typography.fontHeadingXlRegular
-        else -> ElementTheme.typography.fontBodyLgRegular
-    }
+    val textStyle = ElementTheme.typography.fontBodyLgRegular
     CompositionLocalProvider(
         LocalContentColor provides ElementTheme.colors.textPrimary,
         LocalTextStyle provides textStyle
@@ -113,55 +96,34 @@ fun TimelineItemTextView(
                 LatexHelper.removeLatexSpans(rawText)
             }
         }
-        val segments = remember(text, isRenderLatexEnabled) {
-            val mathSegments = if (isRenderLatexEnabled) {
-                LatexHelper.splitByBlockMath(text)
-            } else {
-                listOf(LatexHelper.TextSegment.Text(text))
-            }
-            val result = mutableListOf<TimelineItemSegment>()
-            for (mSeg in mathSegments) {
-                when (mSeg) {
-                    is LatexHelper.TextSegment.BlockMath -> {
-                        result.add(TimelineItemSegment.BlockMath(mSeg.formula))
-                    }
-                    is LatexHelper.TextSegment.Text -> {
-                        val tableSegments = TableHelper.splitByTables(mSeg.text)
-                        for (tSeg in tableSegments) {
-                            when (tSeg) {
-                                is TableHelper.TableSegment.Text -> {
-                                    result.add(TimelineItemSegment.Text(tSeg.text))
-                                }
-                                is TableHelper.TableSegment.Table -> {
-                                    result.add(TimelineItemSegment.Table(tSeg.tableData, tSeg.rawMarkdown))
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            result
+        val astBlocks = remember(content.body, content.htmlDocument) {
+            MessageAstParser.parse(content.htmlDocument, content.body)
         }
 
-        val astBlocks = remember(content.body, content.htmlDocument) {
-            if (content.htmlDocument != null) {
-                HtmlToMessageAstParser.parse(content.htmlDocument!!)
-            } else {
-                MarkdownToMessageAstParser.parse(content.body)
-            }
-        }
-        val hasRichBlocks = remember(astBlocks) {
+        val hasCustomBlock = remember(astBlocks) {
             astBlocks.any {
                 it is MessageBlock.Table ||
                     it is MessageBlock.CodeBlock ||
                     it is MessageBlock.Heading ||
                     it is MessageBlock.Quote ||
                     it is MessageBlock.ListBlock ||
-                    it is MessageBlock.BlockMath
+                    it is MessageBlock.BlockMath ||
+                    (it is MessageBlock.Paragraph && it.children.any { child -> child is InlineNode.InlineMath })
             }
         }
 
-        if (hasRichBlocks) {
+        if (!hasCustomBlock) {
+            Box(modifier.semantics { contentDescription = content.plainText }) {
+                EditorStyledText(
+                    text = text,
+                    onLinkClickedListener = handleLinkClick,
+                    onLinkLongClickedListener = onLinkLongClick,
+                    style = ElementRichTextEditorStyle.textStyle(),
+                    onTextLayout = ContentAvoidingLayout.measureLegacyLastTextLine(onContentLayoutChange = onContentLayoutChange),
+                    releaseOnDetach = false,
+                )
+            }
+        } else {
             Box(
                 modifier = modifier
                     .semantics { contentDescription = content.plainText }
@@ -178,113 +140,12 @@ fun TimelineItemTextView(
             ) {
                 MessageBlocksView(
                     blocks = astBlocks,
+                    onLongClick = onLongClick,
                     onLinkClick = { url -> onLinkClick(Link(url)) },
                 )
             }
-        } else if (segments.size == 1 && segments[0] is TimelineItemSegment.Text) {
-            Box(modifier.semantics { contentDescription = content.plainText }) {
-                EditorStyledText(
-                    text = text,
-                    onLinkClickedListener = handleLinkClick,
-                    onLinkLongClickedListener = onLinkLongClick,
-                    style = ElementRichTextEditorStyle.textStyle(),
-                    onTextLayout = ContentAvoidingLayout.measureLegacyLastTextLine(onContentLayoutChange = onContentLayoutChange),
-                    releaseOnDetach = false,
-                )
-            }
-        } else {
-            Column(
-                modifier = modifier.semantics { contentDescription = content.plainText },
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                segments.forEachIndexed { index, segment ->
-                    val isLast = index == segments.lastIndex
-                    when (segment) {
-                        is TimelineItemSegment.Text -> {
-                            EditorStyledText(
-                                text = segment.text,
-                                onLinkClickedListener = handleLinkClick,
-                                onLinkLongClickedListener = onLinkLongClick,
-                                style = ElementRichTextEditorStyle.textStyle(),
-                                onTextLayout = if (isLast) {
-                                    ContentAvoidingLayout.measureLegacyLastTextLine(onContentLayoutChange = onContentLayoutChange)
-                                } else {
-                                    {}
-                                },
-                                releaseOnDetach = false,
-                            )
-                        }
-                        is TimelineItemSegment.BlockMath -> {
-                            val formula = segment.formula
-                            val fullFormula = "\$\$$formula\$\$"
-                            val onLongClickBlock = {
-                                onLinkLongClick(Link("latex://${Uri.encode(fullFormula)}"))
-                            }
-                            if (isLast) {
-                                Box(
-                                    modifier = Modifier.onSizeChanged { size ->
-                                        onContentLayoutChange(
-                                            ContentAvoidingLayoutData(
-                                                contentWidth = size.width,
-                                                contentHeight = size.height,
-                                                nonOverlappingContentWidth = size.width,
-                                                nonOverlappingContentHeight = size.height,
-                                            )
-                                        )
-                                    }
-                                ) {
-                                    LatexBlockMathView(
-                                        rawFormula = formula,
-                                        onLongClick = onLongClickBlock,
-                                    )
-                                }
-                            } else {
-                                LatexBlockMathView(
-                                    rawFormula = formula,
-                                    onLongClick = onLongClickBlock,
-                                )
-                            }
-                        }
-                        is TimelineItemSegment.Table -> {
-                            val onLongClickTable = {
-                                onLinkLongClick(Link("table://${Uri.encode(segment.rawMarkdown)}"))
-                            }
-                            if (isLast) {
-                                Box(
-                                    modifier = Modifier.onSizeChanged { size ->
-                                        onContentLayoutChange(
-                                            ContentAvoidingLayoutData(
-                                                contentWidth = size.width,
-                                                contentHeight = size.height,
-                                                nonOverlappingContentWidth = size.width,
-                                                nonOverlappingContentHeight = size.height,
-                                            )
-                                        )
-                                    }
-                                ) {
-                                    TableBlockView(
-                                        tableData = segment.tableData,
-                                        onLongClick = onLongClickTable,
-                                    )
-                                }
-                            } else {
-                                TableBlockView(
-                                    tableData = segment.tableData,
-                                    onLongClick = onLongClickTable,
-                                )
-                            }
-                        }
-                    }
-                }
-            }
         }
     }
-}
-
-private sealed interface TimelineItemSegment {
-    data class Text(val text: CharSequence) : TimelineItemSegment
-    data class BlockMath(val formula: String) : TimelineItemSegment
-    data class Table(val tableData: TableData, val rawMarkdown: String) : TimelineItemSegment
 }
 
 @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)

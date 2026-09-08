@@ -84,6 +84,8 @@ dependencies {
     implementation("ru.noties:jlatexmath-android:0.2.0")
     implementation("ru.noties:jlatexmath-android-font-greek:0.2.0")
     implementation("ru.noties:jlatexmath-android-font-cyrillic:0.2.0")
+    implementation("io.github.Rosemoe.sora-editor:editor:0.23.4")
+    implementation("io.github.Rosemoe.sora-editor:language-textmate:0.23.4")
 
     testCommonDependencies(libs, true)
     testImplementation(projects.libraries.matrix.test)

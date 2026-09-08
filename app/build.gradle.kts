@@ -335,10 +335,14 @@ licensee {
     allowUrl("https://asm.ow2.io/license.html")
     allowUrl("https://www.gnu.org/licenses/agpl-3.0.txt")
     allowUrl("https://github.com/mhssn95/compose-color-picker/blob/main/LICENSE")
+    allow("EPL-2.0")
+    allowUrl("https://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt")
     ignoreDependencies("com.github.matrix-org", "matrix-analytics-events")
     ignoreDependencies("ru.noties", "jlatexmath-android")
     ignoreDependencies("ru.noties", "jlatexmath-android-font-greek")
     ignoreDependencies("ru.noties", "jlatexmath-android-font-cyrillic")
+    ignoreDependencies(groupId = "io.github.Rosemoe.sora-editor")
+    ignoreDependencies(groupId = "org.eclipse.jdt")
     // Ignore dependency that are not third-party licenses to us.
     ignoreDependencies(groupId = "io.element.android")
 }

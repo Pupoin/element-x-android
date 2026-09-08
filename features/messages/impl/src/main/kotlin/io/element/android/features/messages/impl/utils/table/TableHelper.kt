@@ -7,7 +7,6 @@
 
 package io.element.android.features.messages.impl.utils.table
 
-import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.Spanned
 import androidx.core.text.getSpans

@@ -17,7 +17,6 @@ import org.jsoup.Jsoup
 import org.junit.Test
 
 class TableHelperTest : RobolectricTest() {
-
     @Test
     fun `preprocessHtmlDocument - replaces table with placeholder token and returns ProcessedTable`() {
         val html = """

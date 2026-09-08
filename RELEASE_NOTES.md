@@ -1,85 +1,75 @@
-# 🚀 Element X+ (LaTeX Formula Rendering Edition)
-# 🚀 Element X+ (LaTeX 数学公式增强版)
+# 🚀 Element X+ (v26.09.08)
 
 ---
 
-## 🇬🇧 English
+## 🇬🇧 English: Release Notes (v26.09.08)
 
-Element X+ is an enhanced version of Element X Android featuring a native, high-performance LaTeX math rendering engine, tailored for academic communication, technical discussions, and scientific collaboration.
+Element X+ **v26.09.08** is a major feature update following `v26.09.1-latex`. It introduces an architectural two-level AST message parser, full TextMate grammar syntax highlighting, interactive code cards with full-screen viewers, and deep UI/UX gesture improvements across messages.
 
-### ✨ Key Features
+### 🌟 What's New Since `v26.09.1-latex`
 
-1. **📐 Native LaTeX Math Rendering**
-   - **Inline Math**: Seamlessly renders `$E=mc^2$`, `$\nabla \cdot \mathbf{B} = 0$` within message bubbles while maintaining natural typographic baseline alignment.
-   - **Block Math**: Displays `$$ ... $$` formulas in standalone, horizontally-scrollable cards. Complex equations, fractions, and large matrices remain crisp without down-scaling, line wrapping, or clipping.
-   - **Matrix MSC2191 Compliant**: Fully compatible with the Matrix MSC2191 math standard used by Element Web and Element Desktop.
+#### 1. 🏗️ Two-Level AST Message Pipeline (`MessageBlock` & `InlineNode`)
+- **Robust Layout Engine**: Completely re-engineered rich message rendering from legacy regex-based parsing to an AST-driven pipeline (`HtmlToMessageAstParser` & `MarkdownToMessageAstParser`).
+- **Clean Block/Inline Separation**: Block elements (Paragraph, Heading, CodeBlock, LatexBlock, Table, Quote, List, Rule) and inline elements (Text, Inline Math, Code, Links, Bold, Italic) render hierarchically without layout breakage or recursion crashes.
 
-2. **📊 Native Markdown & HTML Table Rendering**
-   - Seamlessly converts HTML `<table>` and Markdown tables into native Compose cards.
-   - Distinct header background, subtle zebra row striping, rounded borders, and smooth horizontal scrolling for wide tables.
-   - Tap the table to quickly copy raw Markdown source text with an instant toast notification.
+#### 2. 🎨 TextMate Syntax Highlighter Engine (VS Code / TM4E Parity)
+- **True Headless Tokenizer**: Integrated the industry-standard Eclipse TM4E engine via Sora Editor, parsing code lines with multi-line grammar state tracking (`ruleStack`).
+- **Comprehensive Language Support**: Highlighting for Kotlin, Java, Python, Rust, JavaScript, TypeScript, JSON, Shell/Bash, HTML/XML, and C/C++.
+- **Intelligent Detection**: Auto-infers languages using Shebang markers (`#!/bin/bash`, `#!/usr/bin/env python`), command patterns (`sudo`, `curl`, `git`), and structured data formats when language tags are absent.
 
-3. **🔤 Enhanced Heading Typography (Element Web Parity)**
-   - Headers (`# H1` to `###### H6`, and HTML `<h1>` to `<h6>`) now render with distinct proportional font sizes and bold weights, matching Element Web's presentation.
+#### 3. 💻 Interactive Code Blocks & Fullscreen Viewer
+- **Collapsible Code Cards**: Long code snippets in timeline bubbles automatically truncate to 8 lines with a clean "Expand all" action bar.
+- **Strict Line Number & Copy Isolation**: Left gutter displays line numbers enclosed in `DisableSelection`. Copying via button or long-press selection **never includes line numbers**.
+- **Fullscreen Viewer (`CodeFullscreenViewer`)**:
+  - **Pinch-to-Zoom**: Two-finger zoom smoothly rescales font size from 75% to 250% with strict line-height parity between line numbers and code text.
+  - **Full-Screen Free Horizontal Scrolling**: Resolved touch interception so horizontal panning works across the entire screen (including bottom blank areas) with natural swipe direction (swipe left reveals right content).
+  - **Zero-Bounce Fling**: Fixed double-scrollable fling competition, ensuring natural deceleration without spring-back bounce.
 
-4. **🧠 Broad Environment Compatibility**
-   - Built-in automatic normalization for popular LaTeX environments including `align*` / `align`, `gather*` / `gather`, `equation*` / `equation`, `matrix` / `pmatrix`, and `aligned`.
-   - Tolerates extra whitespace and formatting variations gracefully.
+#### 4. 🔍 Fullscreen Viewers for Formulas & Tables
+- **Fullscreen LaTeX Viewer (`LatexFullscreenViewer`)**: Tap block formulas to launch an edge-to-edge dialog with two-dimensional panning and two-finger pinch-to-zoom.
+- **Fullscreen Table Viewer (`TableFullscreenViewer`)**: Complex, wide Markdown and HTML tables can be inspected in full-screen with smooth multi-touch navigation.
 
-5. **📋 Smooth Interaction & Fast Copy**
-   - **Single-tap formula or table card**: Copies the raw LaTeX / Markdown code directly to the clipboard with an instant toast notification.
-   - **Long-press message**: Opens the standard context menu with a "Select text" sheet for precise text selection and copying.
-
-6. **⚙️ Toggle in Advanced Settings**
-   - Easily enable or disable formula rendering anytime under **Settings → Advanced Settings → Render mathematical formulas**.
-   - When disabled, messages fallback to raw LaTeX source text without custom rendering.
-
-7. **📱 Side-by-Side Coexistence**
-   - Packaged as `io.element.android.x.custom` and labeled as **Element X+**.
-   - Can be installed and run alongside the official Element X release without signature conflicts or overwrites.
-
-### 📦 Installation Guide
-- Most users (64-bit ARM devices): Download `app-fdroid-arm64-v8a-release.apk`.
-- Older 32-bit devices: Download `app-fdroid-armeabi-v7a-release.apk`.
+#### 5. 💬 Smooth Interaction & Context Menu Fixes
+- **Universal Bubble Long-Press**: Tuned gesture hit testing across messages so long-pressing anywhere (text, code borders, formula cards, or blank space) reliably summons the message action sheet.
+- **Rich Message Quotes & Lists**: Beautiful native rendering for nested block quotes and bulleted/numbered lists.
 
 ---
 
-## 🇨🇳 中文说明
+## 🇨🇳 中文：更新说明 (v26.09.08)
 
-Element X+ 是基于 Element X Android 开发的增强版本，内置专业的 LaTeX 数学公式渲染引擎与 Markdown 增强排版，专为学术交流、技术探讨和专业知识展示优化。
+Element X+ **v26.09.08** 是继 `v26.09.1-latex` 之后的重大功能更新版本。本次升级带来了统一的双层 AST 消息解析架构、工业级 TextMate 语法高亮引擎、支持行号隔离与自由缩放的全屏代码查看器，以及全方位的消息交互手势优化。
 
-### ✨ 核心特性
+### 🌟 相比上次 Tag (`v26.09.1-latex`) 的更新内容
 
-1. **📐 原生 LaTeX 数学公式渲染**
-   - **行内公式**：支持 `$E=mc^2$`、`$f(x) = \frac{1}{\sqrt{2\pi}} e^{-\frac{x^2}{2}}$`，平滑嵌入消息富文本，保持自然阅读基线。
-   - **块级公式（方案 B）**：支持 `$$ ... $$` 独立卡片渲染。内置横向平滑滚动条，长公式、大矩阵不缩小、不截断、不换行，保持原始字体清晰度。
+#### 1. 🏗️ 全新双层 AST 消息解析与原生渲染架构
+- **彻底告别正则拼接**：构建了基于 AST 的两层消息处理管线（`HtmlToMessageAstParser` 与 `MarkdownToMessageAstParser`），消除了复杂消息混排时的排版混乱与崩溃隐患。
+- **块级与行内分层解耦**：块级节点（段落、标题、代码块、数学公式、表格、引用块、列表、分割线）与行内节点（纯文本、行内公式、行内代码、超链接、加粗、斜体等）统一组织，层次清晰。
 
-2. **📊 原生 Markdown / HTML 表格卡片渲染**
-   - 解决官方客户端解析表格文字挤成一团的问题，自动解析 HTML `<table>` 与 Markdown 表格为原生 Compose 表格卡片。
-   - 区分表头底色、行间斑马纹隔行变色、圆角边框，宽表格支持横向平滑滚动。
-   - 轻触表格卡片即可一键复制原始 Markdown 格式文本。
+#### 2. 🎨 TextMate 语法高亮引擎（对齐 VS Code 代码着色）
+- **无 UI 侵入的 Headless 分词引擎**：基于 Eclipse TM4E / Sora Editor 核心，逐行分析语法并保存词法栈状态（`ruleStack`），精准映射到 Compose `AnnotatedString` 的 `SpanStyle`。
+- **广泛的语言支持**：原生支持 Kotlin、Java、Python、Rust、JavaScript、TypeScript、JSON、Shell/Bash、HTML/XML、C/C++ 等主流语言。
+- **智能语言自动推断**：自动识别 Shebang（`#!/bin/bash` 等）、常见命令行操作（`sudo`、`curl`、`git` 等）以及 JSON 结构，无语言标注也能拥有高亮。
 
-3. **🔤 标题字号层级优化（对齐 Web 版排版体验）**
-   - 全面支持 HTML `<h1>`~`<h6>` 与 Markdown 语法标题（`#` 至 `######`），自动应用等比放大的标题字号与粗体层级，大标题更醒目，结构一目了然。
+#### 3. 💻 交互式代码卡片与全屏沉浸式代码查看器
+- **智能折叠**：时间线气泡中超过 8 行的长代码自动截断，提供优雅的“展开全部”操作栏。
+- **行号与选区严格隔离**：左侧行号栏由 `DisableSelection` 严格包裹，**无论是点击“复制”按钮还是长按光标手柄框选复制，复制内容绝对不含行号**。
+- **全屏代码查看器 (`CodeFullscreenViewer`) 深度优化**：
+  - **自由缩放**：支持双指捏合缩放（75%~250%），行号与代码行高始终保持 1:1 精确对齐。
+  - **全域横向平滑滚动**：解决代码只有几行时屏幕下方无法左右滑动的问题。屏幕底部全域均可自然横向滚动，手势方向符合自然直觉（手向左滑展现右侧内容）。
+  - **惯性滑动永不回弹**：彻底消除多层嵌套滚动带来的 Fling 冲突，快速滑动松手后平滑自然减速停止，绝不反弹。
 
-4. **🧠 全面兼容主流 LaTeX 环境**
-   - 智能兼容 `align*` / `align`、`gather*` / `gather`、`equation*` / `equation`, `matrix` / `pmatrix` 等所有常用数学环境。
-   - 自动消除常见渲染报错，支持大括号多余空格容错。
+#### 4. 🔍 公式与表格沉浸式全屏查看器
+- **全屏公式查看器 (`LatexFullscreenViewer`)**：轻触公式卡片即可进入全屏漫游模式，支持双指自由缩放与二维拖拽，复杂公式、长矩阵一览无余。
+- **全屏表格查看器 (`TableFullscreenViewer`)**：大型宽表格支持全屏多点触控与漫游查看。
 
-5. **📋 便捷的公式与表格复制交互**
-   - **单击公式 / 表格卡片**：一键将完整的 LaTeX / Markdown 源码复制到剪贴板，并弹出快捷提示。
-   - **长按消息卡片**：调出消息操作菜单，支持“选择文本”进行源码划选复制。
-
-6. **⚙️ 高级设置开关**
-   - 在 **设置 → 高级设置 → 渲染数学公式** 中随时可开启或关闭渲染。
-   - 关闭后即刻回退为标准纯文本展示，满足不同场景需要。
-
-7. **📱 独立共存安装**
-   - 应用包名设为 `io.element.android.x.custom`，应用名称显示为 **Element X+**。
-   - 可与官方 Element X 同时安装在同一部手机上，互不覆盖、互不影响。
+#### 5. 💬 消息手势与富文本细节调优
+- **全域长按菜单修复**：优化手势分发与命中测试，长按普通文本、代码卡片、公式或气泡空白处的任何位置均能稳定弹出操作气泡与菜单。
+- **引用块与列表增强**：原生渲染多层 Markdown 块引用（Quote）与有序/无序列表，对齐现代排版体验。
 
 ---
 
-### 📦 安装说明
-- 推荐下载 `app-fdroid-arm64-v8a-release.apk`（主流 64 位 Android 手机）。
-- 若需要 32 位老机型支持，请下载 `app-fdroid-armeabi-v7a-release.apk`。
+### 📦 安装包下载指南 / Download APKs
+
+- **arm64-v8a** (主流 64 位 Android 手机推荐): `app-fdroid-arm64-v8a-release.apk`
+- **armeabi-v7a** (32 位老旧设备): `app-fdroid-armeabi-v7a-release.apk`
+- **Universal** (全架构通用包): `app-fdroid-universal-release.apk`

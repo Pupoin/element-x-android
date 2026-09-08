@@ -18,7 +18,10 @@ import io.element.android.wysiwyg.view.spans.InlineCodeSpan
 import org.jsoup.nodes.Document
 
 object LatexHelper {
-    private val BLOCK_MATH_REGEX = Regex("""\$\$(.+?)\$\$""", RegexOption.DOT_MATCHES_ALL)
+    private val BLOCK_MATH_REGEX = Regex(
+        """(?:\$\$(.+?)\$\$|(\\begin\{(?:align\*?|aligned|equation\*?|gather\*?)\}[\s\S]*?\\end\{(?:align\*?|aligned|equation\*?|gather\*?)\}))""",
+        RegexOption.DOT_MATCHES_ALL
+    )
 
     // Match $...$ where it doesn't look like currency ($ followed by digit) and has content
     private val INLINE_MATH_REGEX = Regex("""(?<!\$)\$(?!\$)(?!\d+[\s.,])([^\$\n]+?)(?<!\$)\$(?!\$)""")
@@ -42,6 +45,25 @@ object LatexHelper {
             .replace(Regex("""\\begin\{\s*equation\*?\s*\}"""), "")
             .replace(Regex("""\\end\{\s*equation\*?\s*\}"""), "")
         return clean.trim()
+    }
+
+    /**
+     * Checks whether an inline LaTeX formula contains structures with high vertical dimension
+     * (such as fractions, matrices, cases, multi-level limits/sums/integrals) that should
+     * be promoted to a standalone block formula rather than squashed in inline text.
+     */
+    fun isComplexOrTallFormula(rawFormula: String): Boolean {
+        val trimmed = rawFormula.trim()
+        if (trimmed.contains("\\frac") || trimmed.contains("\\dfrac") ||
+            trimmed.contains("\\cfrac") || trimmed.contains("\\over") ||
+            trimmed.contains("\\matrix") || trimmed.contains("\\pmatrix") ||
+            trimmed.contains("\\bmatrix") || trimmed.contains("\\vmatrix") ||
+            trimmed.contains("\\cases") || trimmed.contains("\\begin") ||
+            Regex("""\\(sum|prod|coprod|int|iint|iiint|oint)\s*[_^]""").containsMatchIn(trimmed)
+        ) {
+            return true
+        }
+        return false
     }
 
     /**
@@ -69,7 +91,7 @@ object LatexHelper {
                 }
             }
 
-            val formula = match.groupValues[1].trim()
+            val formula = (match.groups[1]?.value ?: match.groups[2]?.value).orEmpty().trim()
             if (formula.isNotEmpty()) {
                 segments.add(TextSegment.BlockMath(formula))
             }
@@ -136,10 +158,10 @@ object LatexHelper {
             val end = match.range.last + 1
             if (!spannable.canApplyMathSpan(start, end)) continue
 
-            val formula = match.groupValues[1]
+            val formula = (match.groups[1]?.value ?: match.groups[2]?.value)?.trim() ?: continue
             val span = LatexFormulaSpan(rawLatex = formula, isBlock = true)
             spannable.setSpan(span, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            val fullFormula = "\$\$$formula\$\$"
+            val fullFormula = if (match.groups[1] != null) "\$\$$formula\$\$" else formula
             spannable.setSpan(URLSpan("latex://${Uri.encode(fullFormula)}"), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
 

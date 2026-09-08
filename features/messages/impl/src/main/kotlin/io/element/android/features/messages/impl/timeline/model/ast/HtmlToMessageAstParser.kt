@@ -28,7 +28,7 @@ object HtmlToMessageAstParser {
         // Strip <mx-reply> so replies don't display twice in the timeline
         clone.select("mx-reply").remove()
 
-        val body = clone.body() ?: return emptyList()
+        val body = clone.body()
         return parseBlockNodes(body.childNodes(), depth = 0)
     }
 
@@ -88,9 +88,54 @@ object HtmlToMessageAstParser {
                         flushPendingInlines()
                         val codeEl = node.selectFirst("code")
                         val codeText = (codeEl?.wholeText() ?: node.wholeText()).trimEnd('\r', '\n')
-                        val rawLang = codeEl?.className()?.split(" ")?.firstOrNull { it.startsWith("language-") }
-                        val lang = rawLang?.removePrefix("language-")?.takeIf { it.isNotBlank() }
-                        blocks.add(MessageBlock.CodeBlock(language = lang, code = codeText))
+                        val rawClasses = ((codeEl?.className() ?: "") + " " + node.className()).split("\\s+".toRegex())
+                        var lang = rawClasses.firstNotNullOfOrNull { cls ->
+                            when {
+                                cls.startsWith("language-") -> cls.removePrefix("language-")
+                                cls.startsWith("lang-") -> cls.removePrefix("lang-")
+                                cls.startsWith("highlight-") -> cls.removePrefix("highlight-")
+                                else -> null
+                            }?.takeIf { it.isNotBlank() }
+                        }
+                        if (lang == null) {
+                            lang = node.attr("data-language").takeIf { it.isNotBlank() }
+                                ?: node.attr("data-lang").takeIf { it.isNotBlank() }
+                                ?: codeEl?.attr("data-language")?.takeIf { it.isNotBlank() }
+                                ?: codeEl?.attr("data-lang")?.takeIf { it.isNotBlank() }
+                        }
+                        if (lang == null) {
+                            val knownLangs = setOf(
+                                "bash",
+                                "sh",
+                                "zsh",
+                                "shell",
+                                "python",
+                                "py",
+                                "json",
+                                "kotlin",
+                                "kt",
+                                "js",
+                                "javascript",
+                                "ts",
+                                "typescript",
+                                "java",
+                                "rust",
+                                "cpp",
+                                "c",
+                                "go",
+                                "sql",
+                                "yaml",
+                                "yml",
+                                "xml",
+                                "html",
+                                "css"
+                            )
+                            lang = rawClasses.firstOrNull { it.lowercase() in knownLangs }
+                        }
+                        val finalLang = lang ?: io.element.android.features.messages.impl.timeline.model.ast.code.DefaultCodeSyntaxHighlighter
+                            .detectLanguage(codeText)
+                            .takeIf { it.isNotBlank() }
+                        blocks.add(MessageBlock.CodeBlock(language = finalLang, code = codeText))
                     }
                     "table" -> {
                         flushPendingInlines()

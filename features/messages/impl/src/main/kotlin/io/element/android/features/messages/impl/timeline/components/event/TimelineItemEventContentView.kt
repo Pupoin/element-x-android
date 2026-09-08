@@ -141,6 +141,7 @@ fun TimelineItemEventContentView(
                 )
                 is TimelineItemTextBasedContent -> TimelineItemTextView(
                     content = content,
+                    onLongClick = onLongClick,
                     onLinkClick = onLinkClick,
                     onLinkLongClick = onLinkLongClick,
                     onContentLayoutChange = calculatedOnContentLayoutChange,
