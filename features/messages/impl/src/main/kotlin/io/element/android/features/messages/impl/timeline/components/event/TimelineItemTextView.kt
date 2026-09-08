@@ -42,6 +42,8 @@ import io.element.android.features.messages.impl.timeline.model.event.TimelineIt
 import io.element.android.features.messages.impl.timeline.model.event.aTimelineItemTextContent
 import io.element.android.features.messages.impl.utils.containsOnlyEmojis
 import io.element.android.features.messages.impl.utils.latex.LatexHelper
+import io.element.android.features.messages.impl.utils.table.TableData
+import io.element.android.features.messages.impl.utils.table.TableHelper
 import io.element.android.libraries.androidutils.text.LinkifyHelper
 import io.element.android.libraries.designsystem.preview.ElementPreview
 import io.element.android.libraries.designsystem.preview.PreviewsDayNight
@@ -108,14 +110,36 @@ fun TimelineItemTextView(
             }
         }
         val segments = remember(text, isRenderLatexEnabled) {
-            if (isRenderLatexEnabled) {
+            val mathSegments = if (isRenderLatexEnabled) {
                 LatexHelper.splitByBlockMath(text)
             } else {
                 listOf(LatexHelper.TextSegment.Text(text))
             }
+            val result = mutableListOf<TimelineItemSegment>()
+            for (mSeg in mathSegments) {
+                when (mSeg) {
+                    is LatexHelper.TextSegment.BlockMath -> {
+                        result.add(TimelineItemSegment.BlockMath(mSeg.formula))
+                    }
+                    is LatexHelper.TextSegment.Text -> {
+                        val tableSegments = TableHelper.splitByTables(mSeg.text)
+                        for (tSeg in tableSegments) {
+                            when (tSeg) {
+                                is TableHelper.TableSegment.Text -> {
+                                    result.add(TimelineItemSegment.Text(tSeg.text))
+                                }
+                                is TableHelper.TableSegment.Table -> {
+                                    result.add(TimelineItemSegment.Table(tSeg.tableData, tSeg.rawMarkdown))
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            result
         }
 
-        if (segments.size == 1 && segments[0] is LatexHelper.TextSegment.Text) {
+        if (segments.size == 1 && segments[0] is TimelineItemSegment.Text) {
             Box(modifier.semantics { contentDescription = content.plainText }) {
                 EditorStyledText(
                     text = text,
@@ -134,7 +158,7 @@ fun TimelineItemTextView(
                 segments.forEachIndexed { index, segment ->
                     val isLast = index == segments.lastIndex
                     when (segment) {
-                        is LatexHelper.TextSegment.Text -> {
+                        is TimelineItemSegment.Text -> {
                             EditorStyledText(
                                 text = segment.text,
                                 onLinkClickedListener = handleLinkClick,
@@ -148,7 +172,7 @@ fun TimelineItemTextView(
                                 releaseOnDetach = false,
                             )
                         }
-                        is LatexHelper.TextSegment.BlockMath -> {
+                        is TimelineItemSegment.BlockMath -> {
                             val formula = segment.formula
                             val fullFormula = "\$\$$formula\$\$"
                             val onLongClickBlock = {
@@ -179,11 +203,46 @@ fun TimelineItemTextView(
                                 )
                             }
                         }
+                        is TimelineItemSegment.Table -> {
+                            val onLongClickTable = {
+                                onLinkLongClick(Link("table://${Uri.encode(segment.rawMarkdown)}"))
+                            }
+                            if (isLast) {
+                                Box(
+                                    modifier = Modifier.onSizeChanged { size ->
+                                        onContentLayoutChange(
+                                            ContentAvoidingLayoutData(
+                                                contentWidth = size.width,
+                                                contentHeight = size.height,
+                                                nonOverlappingContentWidth = size.width,
+                                                nonOverlappingContentHeight = size.height,
+                                            )
+                                        )
+                                    }
+                                ) {
+                                    TableBlockView(
+                                        tableData = segment.tableData,
+                                        onLongClick = onLongClickTable,
+                                    )
+                                }
+                            } else {
+                                TableBlockView(
+                                    tableData = segment.tableData,
+                                    onLongClick = onLongClickTable,
+                                )
+                            }
+                        }
                     }
                 }
             }
         }
     }
+}
+
+private sealed interface TimelineItemSegment {
+    data class Text(val text: CharSequence) : TimelineItemSegment
+    data class BlockMath(val formula: String) : TimelineItemSegment
+    data class Table(val tableData: TableData, val rawMarkdown: String) : TimelineItemSegment
 }
 
 @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
