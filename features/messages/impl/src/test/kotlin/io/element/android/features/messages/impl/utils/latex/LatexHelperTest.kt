@@ -196,4 +196,25 @@ class LatexHelperTest : RobolectricTest() {
         assertThat(segments).hasSize(1)
         assertThat((segments[0] as LatexHelper.TextSegment.Text).text.toString()).isEqualTo(text)
     }
+
+    @Test
+    fun `cleanFormula - strips optional spacing on line breaks`() {
+        val raw = """a = 1 \\[4pt] b = 2 \\[-2pt] c = 3 \\[14pt]"""
+        val cleaned = LatexHelper.cleanFormula(raw)
+        assertThat(cleaned).isEqualTo("""a = 1 \\ b = 2 \\ c = 3 \\""")
+    }
+
+    @Test
+    fun `cleanFormula - converts at symbol to mathrm at`() {
+        val raw = """\mathtt{@alice:example.org}"""
+        val cleaned = LatexHelper.cleanFormula(raw)
+        assertThat(cleaned).isEqualTo("""\mathtt{\mathrm{at}\ alice:example.org}""")
+    }
+
+    @Test
+    fun `cleanFormula - converts texttt to mathtt`() {
+        val raw = """\texttt{msgtype}"""
+        val cleaned = LatexHelper.cleanFormula(raw)
+        assertThat(cleaned).isEqualTo("""\mathtt{msgtype}""")
+    }
 }

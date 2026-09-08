@@ -44,6 +44,12 @@ object LatexHelper {
             .replace(Regex("""\\end\{\s*gather\*?\s*\}"""), """\\end{gathered}""")
             .replace(Regex("""\\begin\{\s*equation\*?\s*\}"""), "")
             .replace(Regex("""\\end\{\s*equation\*?\s*\}"""), "")
+            // Strip unsupported optional spacing arguments on line breaks, e.g. \\[4pt], \\[-2pt]
+            .replace(Regex("""\\\\\[\s*-?\d+(?:\.\d+)?(?:pt|em|ex|cm|mm|in|bp|dd|pc|sp)\s*\]"""), """\\\\""")
+            // Map \texttt to \mathtt since JLatexMath lacks texttt macro
+            .replace(Regex("""\\texttt\{"""), """\\mathtt{""")
+            // Map unsupported @ symbol to \mathrm{at}\
+            .replace(Regex("""@\s*"""), """\\mathrm{at}\\ """)
         return clean.trim()
     }
 
