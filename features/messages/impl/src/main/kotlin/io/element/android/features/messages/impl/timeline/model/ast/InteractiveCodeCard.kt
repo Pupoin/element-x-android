@@ -38,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -47,6 +48,7 @@ import io.element.android.compound.theme.ElementTheme
 import io.element.android.features.messages.impl.timeline.model.ast.code.DefaultCodeSyntaxHighlighter
 import io.element.android.features.messages.impl.timeline.model.ast.code.HighlightState
 import io.element.android.features.messages.impl.timeline.model.ast.viewer.CodeFullscreenViewer
+import io.element.android.libraries.ui.strings.CommonStrings
 
 private const val MAX_COLLAPSED_LINES = 18
 
@@ -88,11 +90,9 @@ fun InteractiveCodeCard(
 
     val copyAction = {
         val clipboard = context.getSystemService<ClipboardManager>()
-        clipboard?.setPrimaryClip(ClipData.newPlainText("Code Block", code))
-        Toast.makeText(context, "已复制代码块", Toast.LENGTH_SHORT).show()
+        clipboard?.setPrimaryClip(ClipData.newPlainText("Code", code))
+        Toast.makeText(context, context.getString(CommonStrings.common_copied_code), Toast.LENGTH_SHORT).show()
     }
-
-    val displayLang = language?.takeIf { it.isNotBlank() } ?: "CODE"
 
     val gestureModifier = if (onLongClick != null) {
         Modifier.pointerInput(onLongClick) {
@@ -118,7 +118,7 @@ fun InteractiveCodeCard(
                     .fillMaxWidth()
                     .padding(bottom = 6.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 Box(
                     modifier = Modifier
@@ -126,7 +126,7 @@ fun InteractiveCodeCard(
                         .padding(horizontal = 6.dp, vertical = 2.dp)
                 ) {
                     Text(
-                        text = displayLang.uppercase(),
+                        text = (language ?: "CODE").uppercase(),
                         style = ElementTheme.typography.fontBodyXsMedium,
                         color = ElementTheme.colors.textSecondary,
                     )
@@ -143,7 +143,7 @@ fun InteractiveCodeCard(
                             .padding(horizontal = 8.dp, vertical = 2.dp)
                     ) {
                         Text(
-                            text = "复制",
+                            text = stringResource(CommonStrings.action_copy),
                             style = ElementTheme.typography.fontBodyXsMedium,
                             color = ElementTheme.colors.textActionAccent,
                         )
@@ -156,7 +156,7 @@ fun InteractiveCodeCard(
                             .padding(horizontal = 8.dp, vertical = 2.dp)
                     ) {
                         Text(
-                            text = "全屏",
+                            text = stringResource(CommonStrings.action_fullscreen),
                             style = ElementTheme.typography.fontBodyXsMedium,
                             color = ElementTheme.colors.textActionAccent,
                         )
@@ -224,7 +224,7 @@ fun InteractiveCodeCard(
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
-                        text = "展开全部（共 ${allLines.size} 行）",
+                        text = stringResource(CommonStrings.action_code_expand_all, allLines.size),
                         style = ElementTheme.typography.fontBodySmMedium,
                         color = ElementTheme.colors.textActionAccent,
                     )

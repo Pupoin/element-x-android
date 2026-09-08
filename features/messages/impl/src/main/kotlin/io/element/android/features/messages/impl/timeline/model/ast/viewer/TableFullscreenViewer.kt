@@ -35,6 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -45,6 +46,7 @@ import io.element.android.compound.tokens.generated.CompoundIcons
 import io.element.android.features.messages.impl.timeline.model.ast.InlineNode
 import io.element.android.features.messages.impl.timeline.model.ast.InlineText
 import io.element.android.libraries.designsystem.theme.components.Icon
+import io.element.android.libraries.ui.strings.CommonStrings
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -72,7 +74,7 @@ fun TableFullscreenViewer(
         val markdown = buildMarkdownTable(rows)
         val clipboard = context.getSystemService<ClipboardManager>()
         clipboard?.setPrimaryClip(ClipData.newPlainText("Markdown Table", markdown))
-        Toast.makeText(context, "已复制 Markdown 表格", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, context.getString(CommonStrings.common_copied_table), Toast.LENGTH_SHORT).show()
     }
 
     Dialog(
@@ -87,7 +89,7 @@ fun TableFullscreenViewer(
                 TopAppBar(
                     title = {
                         Text(
-                            text = "表格 (${rows.size} 行 $columnCount 列)",
+                            text = stringResource(CommonStrings.screen_table_viewer_title, rows.size, columnCount),
                             style = ElementTheme.typography.fontHeadingSmMedium,
                             color = ElementTheme.colors.textPrimary,
                         )
@@ -96,7 +98,7 @@ fun TableFullscreenViewer(
                         IconButton(onClick = onDismiss) {
                             Icon(
                                 imageVector = CompoundIcons.ArrowLeft(),
-                                contentDescription = "返回",
+                                contentDescription = stringResource(CommonStrings.action_back),
                                 tint = ElementTheme.colors.iconPrimary,
                             )
                         }
@@ -105,7 +107,7 @@ fun TableFullscreenViewer(
                         IconButton(onClick = copyAction) {
                             Icon(
                                 imageVector = CompoundIcons.Copy(),
-                                contentDescription = "复制 Markdown",
+                                contentDescription = stringResource(CommonStrings.action_copy_markdown),
                                 tint = ElementTheme.colors.iconPrimary,
                             )
                         }

@@ -43,6 +43,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -55,6 +56,7 @@ import io.element.android.compound.tokens.generated.CompoundIcons
 import io.element.android.features.messages.impl.timeline.model.ast.code.DefaultCodeSyntaxHighlighter
 import io.element.android.features.messages.impl.timeline.model.ast.code.HighlightState
 import io.element.android.libraries.designsystem.theme.components.Icon
+import io.element.android.libraries.ui.strings.CommonStrings
 import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -93,7 +95,7 @@ fun CodeFullscreenViewer(
     val copyAction = {
         val clipboard = context.getSystemService<ClipboardManager>()
         clipboard?.setPrimaryClip(ClipData.newPlainText("Code Block", code))
-        Toast.makeText(context, "已复制代码块", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, context.getString(CommonStrings.common_copied_code), Toast.LENGTH_SHORT).show()
     }
 
     Dialog(
@@ -114,7 +116,7 @@ fun CodeFullscreenViewer(
                                 color = ElementTheme.colors.textPrimary,
                             )
                             Text(
-                                text = "${lines.size} 行",
+                                text = stringResource(CommonStrings.screen_code_viewer_lines, lines.size),
                                 style = ElementTheme.typography.fontBodyXsRegular,
                                 color = ElementTheme.colors.textSecondary,
                             )
@@ -124,7 +126,7 @@ fun CodeFullscreenViewer(
                         IconButton(onClick = onDismiss) {
                             Icon(
                                 imageVector = CompoundIcons.ArrowLeft(),
-                                contentDescription = "返回",
+                                contentDescription = stringResource(CommonStrings.action_back),
                                 tint = ElementTheme.colors.iconPrimary,
                             )
                         }
@@ -138,7 +140,7 @@ fun CodeFullscreenViewer(
                         ) {
                             Icon(
                                 imageVector = CompoundIcons.Minus(),
-                                contentDescription = "缩小",
+                                contentDescription = stringResource(CommonStrings.a11y_zoom_out),
                                 tint = if (fontScale > 0.75f) ElementTheme.colors.iconPrimary else ElementTheme.colors.iconDisabled,
                             )
                         }
@@ -161,7 +163,7 @@ fun CodeFullscreenViewer(
                         ) {
                             Icon(
                                 imageVector = CompoundIcons.Plus(),
-                                contentDescription = "放大",
+                                contentDescription = stringResource(CommonStrings.a11y_zoom_in),
                                 tint = if (fontScale < 2.5f) ElementTheme.colors.iconPrimary else ElementTheme.colors.iconDisabled,
                             )
                         }
@@ -169,7 +171,7 @@ fun CodeFullscreenViewer(
                         IconButton(onClick = copyAction) {
                             Icon(
                                 imageVector = CompoundIcons.Copy(),
-                                contentDescription = "复制代码",
+                                contentDescription = stringResource(CommonStrings.action_copy_code),
                                 tint = ElementTheme.colors.iconPrimary,
                             )
                         }

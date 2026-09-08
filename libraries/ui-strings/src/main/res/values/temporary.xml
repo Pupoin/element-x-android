@@ -13,4 +13,17 @@
     <string name="action_select_text">Select text</string>
     <string name="screen_advanced_settings_render_latex">Render mathematical formulas</string>
     <string name="screen_advanced_settings_render_latex_description">Render LaTeX formulas as mathematical equations and scrollable cards</string>
+    <string name="action_fullscreen">Fullscreen</string>
+    <string name="action_copy_latex">Copy LaTeX</string>
+    <string name="action_copy_markdown">Copy Markdown</string>
+    <string name="action_copy_code">Copy code</string>
+    <string name="action_code_expand_all">Expand all (%1$d lines)</string>
+    <string name="screen_code_viewer_lines">%1$d lines</string>
+    <string name="screen_table_viewer_title">Table (%1$d rows %2$d columns)</string>
+    <string name="screen_formula_viewer_title">LaTeX formula</string>
+    <string name="a11y_zoom_in">Zoom in</string>
+    <string name="a11y_zoom_out">Zoom out</string>
+    <string name="common_copied_latex">LaTeX formula copied</string>
+    <string name="common_copied_code">Code snippet copied</string>
+    <string name="common_copied_table">Markdown table copied</string>
 </resources>

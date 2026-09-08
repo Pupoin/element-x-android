@@ -39,6 +39,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -47,6 +48,7 @@ import io.element.android.compound.theme.ElementTheme
 import io.element.android.compound.tokens.generated.CompoundIcons
 import io.element.android.features.messages.impl.utils.latex.LatexHelper
 import io.element.android.libraries.designsystem.theme.components.Icon
+import io.element.android.libraries.ui.strings.CommonStrings
 import ru.noties.jlatexmath.JLatexMathAndroid
 import ru.noties.jlatexmath.JLatexMathDrawable
 import timber.log.Timber
@@ -82,10 +84,9 @@ fun FormulaFullscreenViewer(
     }
 
     val copyAction = {
-        val full = "\$\$$rawFormula\$\$"
         val clipboard = context.getSystemService<ClipboardManager>()
-        clipboard?.setPrimaryClip(ClipData.newPlainText("LaTeX Formula", full))
-        Toast.makeText(context, "已复制 LaTeX 公式", Toast.LENGTH_SHORT).show()
+        clipboard?.setPrimaryClip(ClipData.newPlainText("LaTeX Formula", clean))
+        Toast.makeText(context, context.getString(CommonStrings.common_copied_latex), Toast.LENGTH_SHORT).show()
     }
 
     var scale by remember { mutableFloatStateOf(1f) }
@@ -146,7 +147,7 @@ fun FormulaFullscreenViewer(
                     TopAppBar(
                         title = {
                             Text(
-                                text = "LaTeX 公式",
+                                text = stringResource(CommonStrings.screen_formula_viewer_title),
                                 style = ElementTheme.typography.fontHeadingSmMedium,
                                 color = ElementTheme.colors.textPrimary,
                             )
@@ -155,7 +156,7 @@ fun FormulaFullscreenViewer(
                             IconButton(onClick = onDismiss) {
                                 Icon(
                                     imageVector = CompoundIcons.ArrowLeft(),
-                                    contentDescription = "返回",
+                                    contentDescription = stringResource(CommonStrings.action_back),
                                     tint = ElementTheme.colors.iconPrimary,
                                 )
                             }
@@ -167,7 +168,7 @@ fun FormulaFullscreenViewer(
                             ) {
                                 Icon(
                                     imageVector = CompoundIcons.Minus(),
-                                    contentDescription = "缩小",
+                                    contentDescription = stringResource(CommonStrings.a11y_zoom_out),
                                     tint = if (scale > 0.15f) ElementTheme.colors.iconPrimary else ElementTheme.colors.iconDisabled,
                                 )
                             }
@@ -199,7 +200,7 @@ fun FormulaFullscreenViewer(
                             ) {
                                 Icon(
                                     imageVector = CompoundIcons.Plus(),
-                                    contentDescription = "放大",
+                                    contentDescription = stringResource(CommonStrings.a11y_zoom_in),
                                     tint = if (scale < 5.0f) ElementTheme.colors.iconPrimary else ElementTheme.colors.iconDisabled,
                                 )
                             }
@@ -207,7 +208,7 @@ fun FormulaFullscreenViewer(
                             IconButton(onClick = copyAction) {
                                 Icon(
                                     imageVector = CompoundIcons.Copy(),
-                                    contentDescription = "复制 LaTeX",
+                                    contentDescription = stringResource(CommonStrings.action_copy_latex),
                                     tint = ElementTheme.colors.iconPrimary,
                                 )
                             }

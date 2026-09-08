@@ -41,12 +41,14 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.getSystemService
 import io.element.android.compound.theme.ElementTheme
 import io.element.android.features.messages.impl.timeline.model.ast.viewer.FormulaFullscreenViewer
 import io.element.android.features.messages.impl.utils.latex.LatexHelper
+import io.element.android.libraries.ui.strings.CommonStrings
 import ru.noties.jlatexmath.JLatexMathAndroid
 import ru.noties.jlatexmath.JLatexMathDrawable
 import timber.log.Timber
@@ -91,7 +93,7 @@ fun LatexBlockMathView(
         val full = "\$\$$rawFormula\$\$"
         val clipboard = context.getSystemService<ClipboardManager>()
         clipboard?.setPrimaryClip(ClipData.newPlainText("LaTeX Formula", full))
-        Toast.makeText(context, "已复制 LaTeX 公式", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, context.getString(CommonStrings.common_copied_latex), Toast.LENGTH_SHORT).show()
     }
 
     val gestureModifier = if (onLongClick != null) {
@@ -143,7 +145,7 @@ fun LatexBlockMathView(
                             .padding(horizontal = 8.dp, vertical = 2.dp)
                     ) {
                         Text(
-                            text = "复制 LaTeX",
+                            text = stringResource(CommonStrings.action_copy_latex),
                             style = ElementTheme.typography.fontBodyXsMedium,
                             color = ElementTheme.colors.textActionAccent,
                         )
@@ -156,7 +158,7 @@ fun LatexBlockMathView(
                             .padding(horizontal = 8.dp, vertical = 2.dp)
                     ) {
                         Text(
-                            text = "全屏",
+                            text = stringResource(CommonStrings.action_fullscreen),
                             style = ElementTheme.typography.fontBodyXsMedium,
                             color = ElementTheme.colors.textActionAccent,
                         )

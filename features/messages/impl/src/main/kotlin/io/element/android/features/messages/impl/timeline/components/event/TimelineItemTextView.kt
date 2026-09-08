@@ -46,6 +46,7 @@ import io.element.android.libraries.designsystem.preview.PreviewsDayNight
 import io.element.android.libraries.designsystem.utils.LocalUiTestMode
 import io.element.android.libraries.textcomposer.ElementRichTextEditorStyle
 import io.element.android.libraries.textcomposer.mentions.LocalMentionSpanUpdater
+import io.element.android.libraries.ui.strings.CommonStrings
 import io.element.android.wysiwyg.compose.EditorStyledText
 import io.element.android.wysiwyg.link.Link
 
@@ -78,7 +79,7 @@ fun TimelineItemTextView(
             val formula = android.net.Uri.decode(encoded)
             val clipboard = context.getSystemService<android.content.ClipboardManager>()
             clipboard?.setPrimaryClip(android.content.ClipData.newPlainText("LaTeX Formula", formula))
-            android.widget.Toast.makeText(context, "已复制 LaTeX 公式", android.widget.Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, context.getString(CommonStrings.common_copied_latex), Toast.LENGTH_SHORT).show()
         } else {
             onLinkClick(link)
         }

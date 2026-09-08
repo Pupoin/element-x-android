@@ -37,11 +37,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.content.getSystemService
 import io.element.android.compound.theme.ElementTheme
 import io.element.android.features.messages.impl.timeline.model.ast.viewer.TableFullscreenViewer
+import io.element.android.libraries.ui.strings.CommonStrings
 
 @Composable
 fun HtmlTableView(
@@ -72,7 +74,7 @@ fun HtmlTableView(
         val markdown = buildMarkdownTable(rows)
         val clipboard = context.getSystemService<ClipboardManager>()
         clipboard?.setPrimaryClip(ClipData.newPlainText("Markdown Table", markdown))
-        Toast.makeText(context, "已复制 Markdown 表格", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, context.getString(CommonStrings.common_copied_table), Toast.LENGTH_SHORT).show()
     }
 
     val scrollState = rememberScrollState()
@@ -126,7 +128,7 @@ fun HtmlTableView(
                             .padding(horizontal = 8.dp, vertical = 2.dp)
                     ) {
                         Text(
-                            text = "复制 Markdown",
+                            text = stringResource(CommonStrings.action_copy_markdown),
                             style = ElementTheme.typography.fontBodyXsMedium,
                             color = ElementTheme.colors.textActionAccent,
                         )
@@ -139,7 +141,7 @@ fun HtmlTableView(
                             .padding(horizontal = 8.dp, vertical = 2.dp)
                     ) {
                         Text(
-                            text = "全屏",
+                            text = stringResource(CommonStrings.action_fullscreen),
                             style = ElementTheme.typography.fontBodyXsMedium,
                             color = ElementTheme.colors.textActionAccent,
                         )
