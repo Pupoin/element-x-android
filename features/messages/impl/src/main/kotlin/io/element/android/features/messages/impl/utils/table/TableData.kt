@@ -26,11 +26,3 @@ data class TableData(
     val isEmpty: Boolean
         get() = headers.isEmpty() && rows.isEmpty()
 }
-
-/**
- * Span marking a structured table block within a Spanned text.
- */
-class TableSpan(
-    val tableData: TableData,
-    val rawMarkdown: String,
-)

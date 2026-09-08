@@ -172,32 +172,6 @@ class LatexHelperTest : RobolectricTest() {
     }
 
     @Test
-    fun `splitByBlockMath - splits text and block math correctly`() {
-        val text = "Hello\n\n\$\$\\frac{a}{b}\$\$\n\nWorld"
-        val segments = LatexHelper.splitByBlockMath(text)
-        assertThat(segments).hasSize(3)
-        assertThat((segments[0] as LatexHelper.TextSegment.Text).text.toString()).isEqualTo("Hello")
-        assertThat((segments[1] as LatexHelper.TextSegment.BlockMath).formula).isEqualTo("\\frac{a}{b}")
-        assertThat((segments[2] as LatexHelper.TextSegment.Text).text.toString()).isEqualTo("World")
-    }
-
-    @Test
-    fun `splitByBlockMath - returns single BlockMath for pure block formula`() {
-        val text = "\$\$\\int_0^1 x dx\$\$"
-        val segments = LatexHelper.splitByBlockMath(text)
-        assertThat(segments).hasSize(1)
-        assertThat((segments[0] as LatexHelper.TextSegment.BlockMath).formula).isEqualTo("\\int_0^1 x dx")
-    }
-
-    @Test
-    fun `splitByBlockMath - returns single Text for message without block math`() {
-        val text = "Hello with \$inline\$ math"
-        val segments = LatexHelper.splitByBlockMath(text)
-        assertThat(segments).hasSize(1)
-        assertThat((segments[0] as LatexHelper.TextSegment.Text).text.toString()).isEqualTo(text)
-    }
-
-    @Test
     fun `cleanFormula - strips optional spacing on line breaks`() {
         val raw = """a = 1 \\[4pt] b = 2 \\[-2pt] c = 3 \\[14pt]"""
         val cleaned = LatexHelper.cleanFormula(raw)

@@ -26,11 +26,6 @@ object LatexHelper {
     // Match $...$ where it doesn't look like currency ($ followed by digit) and has content
     private val INLINE_MATH_REGEX = Regex("""(?<!\$)\$(?!\$)(?!\d+[\s.,])([^\$\n]+?)(?<!\$)\$(?!\$)""")
 
-    sealed interface TextSegment {
-        data class Text(val text: CharSequence) : TextSegment
-        data class BlockMath(val formula: String) : TextSegment
-    }
-
     /**
      * Normalizes LaTeX environment syntax for JLatexMath compatibility
      * (e.g. mapping document-level \begin{align*} and \begin{align} to \begin{aligned}).
@@ -70,65 +65,6 @@ object LatexHelper {
             return true
         }
         return false
-    }
-
-    /**
-     * Splits [text] into sequential [TextSegment]s separating text and block formulas ($$...$$).
-     * This allows rendering block formulas inside Compose horizontal-scrolling containers
-     * while keeping standard text inside [EditorStyledText].
-     */
-    fun splitByBlockMath(text: CharSequence): List<TextSegment> {
-        val matches = BLOCK_MATH_REGEX.findAll(text).toList()
-        if (matches.isEmpty()) {
-            return listOf(TextSegment.Text(text))
-        }
-
-        val segments = mutableListOf<TextSegment>()
-        var lastIndex = 0
-
-        for (match in matches) {
-            val start = match.range.first
-            val end = match.range.last + 1
-
-            if (start > lastIndex) {
-                val sub = text.subSequence(lastIndex, start).trimEndNewlines()
-                if (sub.isNotBlank()) {
-                    segments.add(TextSegment.Text(sub))
-                }
-            }
-
-            val formula = (match.groups[1]?.value ?: match.groups[2]?.value).orEmpty().trim()
-            if (formula.isNotEmpty()) {
-                segments.add(TextSegment.BlockMath(formula))
-            }
-
-            lastIndex = end
-        }
-
-        if (lastIndex < text.length) {
-            val sub = text.subSequence(lastIndex, text.length).trimStartNewlines()
-            if (sub.isNotBlank()) {
-                segments.add(TextSegment.Text(sub))
-            }
-        }
-
-        return segments.ifEmpty { listOf(TextSegment.Text(text)) }
-    }
-
-    private fun CharSequence.trimEndNewlines(): CharSequence {
-        var end = length
-        while (end > 0 && (this[end - 1] == '\n' || this[end - 1] == '\r' || this[end - 1] == ' ')) {
-            end--
-        }
-        return if (end == length) this else subSequence(0, end)
-    }
-
-    private fun CharSequence.trimStartNewlines(): CharSequence {
-        var start = 0
-        while (start < length && (this[start] == '\n' || this[start] == '\r' || this[start] == ' ')) {
-            start++
-        }
-        return if (start == 0) this else subSequence(start, length)
     }
 
     /**
