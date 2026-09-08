@@ -40,6 +40,10 @@ import io.element.android.features.messages.impl.timeline.model.event.AN_EMOJI_O
 import io.element.android.features.messages.impl.timeline.model.event.TimelineItemTextBasedContent
 import io.element.android.features.messages.impl.timeline.model.event.TimelineItemTextBasedContentPreviewParam
 import io.element.android.features.messages.impl.timeline.model.event.aTimelineItemTextContent
+import io.element.android.features.messages.impl.timeline.model.ast.HtmlToMessageAstParser
+import io.element.android.features.messages.impl.timeline.model.ast.MarkdownToMessageAstParser
+import io.element.android.features.messages.impl.timeline.model.ast.MessageBlock
+import io.element.android.features.messages.impl.timeline.model.ast.MessageBlocksView
 import io.element.android.features.messages.impl.utils.containsOnlyEmojis
 import io.element.android.features.messages.impl.utils.latex.LatexHelper
 import io.element.android.features.messages.impl.utils.table.TableData
@@ -139,7 +143,45 @@ fun TimelineItemTextView(
             result
         }
 
-        if (segments.size == 1 && segments[0] is TimelineItemSegment.Text) {
+        val astBlocks = remember(content.body, content.htmlDocument) {
+            if (content.htmlDocument != null) {
+                HtmlToMessageAstParser.parse(content.htmlDocument!!)
+            } else {
+                MarkdownToMessageAstParser.parse(content.body)
+            }
+        }
+        val hasRichBlocks = remember(astBlocks) {
+            astBlocks.any {
+                it is MessageBlock.Table ||
+                    it is MessageBlock.CodeBlock ||
+                    it is MessageBlock.Heading ||
+                    it is MessageBlock.Quote ||
+                    it is MessageBlock.ListBlock ||
+                    it is MessageBlock.BlockMath
+            }
+        }
+
+        if (hasRichBlocks) {
+            Box(
+                modifier = modifier
+                    .semantics { contentDescription = content.plainText }
+                    .onSizeChanged { size ->
+                        onContentLayoutChange(
+                            ContentAvoidingLayoutData(
+                                contentWidth = size.width,
+                                contentHeight = size.height,
+                                nonOverlappingContentWidth = size.width,
+                                nonOverlappingContentHeight = size.height,
+                            )
+                        )
+                    }
+            ) {
+                MessageBlocksView(
+                    blocks = astBlocks,
+                    onLinkClick = { url -> onLinkClick(Link(url)) },
+                )
+            }
+        } else if (segments.size == 1 && segments[0] is TimelineItemSegment.Text) {
             Box(modifier.semantics { contentDescription = content.plainText }) {
                 EditorStyledText(
                     text = text,

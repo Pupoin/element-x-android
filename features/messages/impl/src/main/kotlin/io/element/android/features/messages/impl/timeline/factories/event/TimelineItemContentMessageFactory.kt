@@ -442,13 +442,14 @@ class TimelineItemContentMessageFactory(
 
     private fun parseHtml(document: Document): CharSequence {
         LatexHelper.preprocessHtmlDocument(document)
-        TableHelper.preprocessHtmlDocument(document)
+        val tables = TableHelper.preprocessHtmlDocument(document)
         return htmlConverterProvider.provide()
             .fromDocumentToSpans(document)
             .let { textPillificationHelper.pillify(it) }
             .safeLinkify()
             .withLatex()
             .withHeadings(document)
+            .let { TableHelper.attachTableSpans(it, tables) }
     }
 }
 
