@@ -1,12 +1,12 @@
-# 🚀 Element X+ (v26.09.08)
+# 🚀 Element X+ (v26.09.08.1)
 
 ---
 
-## 🇬🇧 English: Release Notes (v26.09.08)
+## 🇬🇧 English: Release Notes (v26.09.08.1)
 
-Element X+ **v26.09.08** is a major feature update following `v26.09.1-latex`. It introduces an architectural two-level AST message parser, full TextMate grammar syntax highlighting, interactive code cards with full-screen viewers, and deep UI/UX gesture improvements across messages.
+Element X+ **v26.09.08.1** is a major feature and quality update following `v26.09.1-latex` and `v26.09.08`. It introduces an architectural two-level AST message parser, full TextMate grammar syntax highlighting, interactive code cards with full-screen viewers, deep UI/UX gesture improvements across messages, and comprehensive bilingual localization.
 
-### 🌟 What's New Since `v26.09.1-latex`
+### 🌟 What's New
 
 #### 1. 🏗️ Two-Level AST Message Pipeline (`MessageBlock` & `InlineNode`)
 - **Robust Layout Engine**: Completely re-engineered rich message rendering from legacy regex-based parsing to an AST-driven pipeline (`HtmlToMessageAstParser` & `MarkdownToMessageAstParser`).
@@ -38,13 +38,17 @@ Element X+ **v26.09.08** is a major feature update following `v26.09.1-latex`. I
 - **Line Break Spacing Parameters**: Automatically strips optional bracket arguments on line breaks like `\\[4pt]`, `\\[-2pt]`, and `\\[14pt]`.
 - **Monospace Font Macro Parity**: Automatically normalizes `\texttt` macros to JLatexMath's native `\mathtt`.
 
+#### 7. 🌐 Comprehensive Bilingual Localization & Architecture Cleanup
+- **Full UI Localization (i18n)**: All interactive controls across code blocks, tables, LaTeX math cards, and full-screen viewers (e.g. "Copy code", "Copy Markdown", "Copy LaTeX", "Select text", "Fullscreen") now seamlessly adapt to the device system language (English / Chinese) without hardcoded strings.
+- **Dead Code Cleanup**: Eliminated legacy Phase 1 prototype code and obsolete regex spans, keeping the codebase clean, maintainable, and lean.
+
 ---
 
-## 🇨🇳 中文：更新说明 (v26.09.08)
+## 🇨🇳 中文：更新说明 (v26.09.08.1)
 
-Element X+ **v26.09.08** 是继 `v26.09.1-latex` 之后的重大功能更新版本。本次升级带来了统一的双层 AST 消息解析架构、工业级 TextMate 语法高亮引擎、支持行号隔离与自由缩放的全屏代码查看器，以及全方位的消息交互手势优化。
+Element X+ **v26.09.08.1** 是继 `v26.09.1-latex` 与 `v26.09.08` 之后的重大功能与质量提升版本。本次升级带来了统一的双层 AST 消息解析架构、工业级 TextMate 语法高亮引擎、支持行号隔离与自由缩放的全屏代码查看器、全方位的消息交互手势优化，以及完整的中英双语系统自适应国际化支持。
 
-### 🌟 相比上次 Tag (`v26.09.1-latex`) 的更新内容
+### 🌟 更新内容
 
 #### 1. 🏗️ 全新双层 AST 消息解析与原生渲染架构
 - **彻底告别正则拼接**：构建了基于 AST 的两层消息处理管线（`HtmlToMessageAstParser` 与 `MarkdownToMessageAstParser`），消除了复杂消息混排时的排版混乱与崩溃隐患。
@@ -76,6 +80,10 @@ Element X+ **v26.09.08** 是继 `v26.09.1-latex` 之后的重大功能更新版�
 - **换行间距参数兼容**：自动兼容并剥离 `\\[4pt]`、`\\[-2pt]`、`\\[14pt]` 等可选间距参数，避免非法符号错误。
 - **等宽字体宏兼容**：自动将 `\texttt` 宏映射至 JLatexMath 原生支持的 `\mathtt`。
 
+#### 7. 🌐 全系统多语言自适应 (i18n) 与架构精简
+- **全交互组件国际化**：交互代码卡片、表格、LaTeX 查看器及三大全屏查看器中的所有操作文案（“复制代码”、“复制 Markdown”、“复制 LaTeX”、“选择文本”、“全屏”等）全面接入 Element X 官方国际化架构（`temporary.xml`），自适应中英文环境，消除硬编码。
+- **冗余原型代码清理**：彻底移除第一阶段过渡原型渲染代码与废弃工具类，保持代码库整洁轻量。
+
 ---
 
 ### 📦 安装包下载指南 / Download APKs
@@ -83,3 +91,4 @@ Element X+ **v26.09.08** 是继 `v26.09.1-latex` 之后的重大功能更新版�
 - **arm64-v8a** (主流 64 位 Android 手机推荐): `app-fdroid-arm64-v8a-release.apk`
 - **armeabi-v7a** (32 位老旧设备): `app-fdroid-armeabi-v7a-release.apk`
 - **Universal** (全架构通用包): `app-fdroid-universal-release.apk`
+
